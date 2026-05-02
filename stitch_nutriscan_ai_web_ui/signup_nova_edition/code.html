@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Nova Edition | NutriScan AI</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "surface-container": "#e5e9ea",
+                      "on-primary-fixed-variant": "#006d4e",
+                      "outline-variant": "#abadae",
+                      "on-surface": "#2c2f30",
+                      "background": "#f5f7f8",
+                      "inverse-surface": "#0b0f10",
+                      "on-tertiary-fixed": "#005045",
+                      "on-secondary": "#c3ffed",
+                      "primary-fixed-dim": "#7defc0",
+                      "surface-variant": "#d9dddf",
+                      "on-primary-fixed": "#004d36",
+                      "tertiary-fixed-dim": "#98f0dc",
+                      "primary-fixed": "#8cfece",
+                      "error-dim": "#9f0519",
+                      "surface-container-low": "#eef1f2",
+                      "tertiary": "#006859",
+                      "error": "#b31b25",
+                      "secondary-fixed": "#afefdd",
+                      "surface": "#f5f7f8",
+                      "on-error-container": "#570008",
+                      "surface-bright": "#f5f7f8",
+                      "tertiary-container": "#a6feea",
+                      "on-secondary-fixed-variant": "#266658",
+                      "on-primary-container": "#006146",
+                      "on-tertiary": "#c2fff0",
+                      "primary-dim": "#005b41",
+                      "secondary-dim": "#16594c",
+                      "on-tertiary-container": "#006456",
+                      "tertiary-fixed": "#a6feea",
+                      "on-tertiary-fixed-variant": "#007060",
+                      "secondary-container": "#afefdd",
+                      "on-surface-variant": "#595c5d",
+                      "surface-container-lowest": "#ffffff",
+                      "on-error": "#ffefee",
+                      "primary-container": "#8cfece",
+                      "on-secondary-container": "#195c4e",
+                      "secondary-fixed-dim": "#a1e1cf",
+                      "surface-dim": "#d0d5d7",
+                      "surface-tint": "#00694b",
+                      "on-secondary-fixed": "#00483c",
+                      "on-primary": "#c7ffe3",
+                      "secondary": "#266658",
+                      "inverse-primary": "#8cfece",
+                      "outline": "#747778",
+                      "error-container": "#fb5151",
+                      "surface-container-highest": "#d9dddf",
+                      "surface-container-high": "#dfe3e4",
+                      "tertiary-dim": "#005a4e",
+                      "on-background": "#2c2f30",
+                      "primary": "#00694b",
+                      "inverse-on-surface": "#9a9d9e"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "fontFamily": {
+                      "headline": ["Manrope"],
+                      "body": ["Inter"],
+                      "label": ["Inter"]
+              }
+            },
+          },
+        }
+      </script>
+<style>
+        .ease-out-expo { transition-timing-function: cubic-bezier(0.19, 1, 0.22, 1); }
+        .mesh-gradient {
+            background-color: #f5f7f8;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(140, 254, 206, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(0, 105, 75, 0.1) 0px, transparent 50%),
+                radial-gradient(at 50% 50%, rgba(166, 254, 234, 0.1) 0px, transparent 50%);
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-background font-body text-on-surface selection:bg-primary-container selection:text-on-primary-container">
+<!-- Ambient Mesh Background -->
+<div class="fixed inset-0 z-0 mesh-gradient pointer-events-none"></div>
+<main class="relative z-10 min-h-screen flex items-center justify-center p-6 sm:p-12">
+<!-- Main Signup Container -->
+<div class="w-full max-w-xl">
+<!-- Logo Section -->
+<div class="flex flex-col items-center mb-12 text-center">
+<div class="mb-6 relative">
+<div class="absolute inset-0 bg-primary-fixed blur-2xl opacity-40 rounded-full"></div>
+<div class="relative w-16 h-16 glass-panel rounded-2xl flex items-center justify-center outline outline-1 outline-white/20 shadow-2xl">
+<span class="material-symbols-outlined text-primary text-4xl" style="font-variation-settings: 'FILL' 1;">biotech</span>
+</div>
+</div>
+<h1 class="font-headline text-4xl md:text-5xl font-extrabold tracking-[-0.04em] text-on-surface mb-3">
+                    Nova <span class="text-primary">Edition</span>
+</h1>
+<p class="font-body text-on-surface-variant max-w-sm leading-relaxed">
+                    Experience the future of molecular nutrition with NutriScan AI.
+                </p>
+</div>
+<!-- Signup Form Card -->
+<div class="glass-panel rounded-[2.5rem] p-8 md:p-12 shadow-[0px_24px_48px_rgba(0,77,54,0.08)] outline outline-1 outline-white/25">
+<!-- Social Login Cluster -->
+<div class="grid grid-cols-2 gap-4 mb-10">
+<button class="flex items-center justify-center gap-3 py-3.5 px-4 bg-surface-container-lowest/50 hover:bg-surface-container-lowest transition-all duration-300 rounded-2xl outline outline-1 outline-outline-variant/10 text-sm font-medium">
+<img alt="Google" class="w-5 h-5" data-alt="vector graphic of the colorful google G logo on a clean white circular background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBp1tmscz_1k7oGnRjwhmmXN7RFa-bln_8E70ZXt7tyk22GAagMNmAxprp-I1DyyKDjyXKqkkM6pA9iQuwGgBSLZ9xlDcP0-eEqT5rTZU5rVsrxvFoNULV8CzkQ32oV4I8mJsyHioWfLYq-vN_o57eI2LaWT3EJqYxp7HcboU4f17Rx-J3qIU-A-pblDI5z7fatOIpM_UqZrgbeoUZX406phqOhGDaSzWdU6gxivnWzp2WXcVBrr4dIuW5vzj5XG0qRAHz-pXXFIJg"/>
+<span>Google</span>
+</button>
+<button class="flex items-center justify-center gap-3 py-3.5 px-4 bg-surface-container-lowest/50 hover:bg-surface-container-lowest transition-all duration-300 rounded-2xl outline outline-1 outline-outline-variant/10 text-sm font-medium">
+<img alt="Apple" class="w-5 h-5" data-alt="sleek minimalist black apple logo vector with clean lines on a transparent background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDj2k-J-i1ryldLB2uq9a7qbuURuKx7mpyfWo8QNjAyg1eaVYAA4wP4PFBbexK82MMvLgnQaXkI-DzNNeUsFSQclInL8xEojEkvTKDynmuAPJqV3VjeXr7m2eu5_ijG2ifKeJIqTz_EF65bzavrKjTmkXC9CCsJMBjl1BVeEAawD8KoClvvOO5vkCeQZByECsV9P6U9Mz1T9rU7oHZxcrRfsWQeYFUVvww_C3pQvtfgMqsBeYBjg6n9_81rybvjd4gnJQjNZQTVjLU"/>
+<span>Apple ID</span>
+</button>
+</div>
+<div class="relative flex items-center justify-center mb-10">
+<div class="absolute inset-0 flex items-center">
+<div class="w-full border-t border-outline-variant/20"></div>
+</div>
+<span class="relative px-4 bg-transparent text-[10px] font-bold tracking-widest text-outline uppercase font-label">Or join via email</span>
+</div>
+<!-- Fields -->
+<form class="space-y-6">
+<div class="space-y-1.5">
+<label class="text-[11px] font-bold tracking-widest text-on-surface-variant uppercase ml-1">Full Identity</label>
+<div class="group relative">
+<input class="w-full bg-transparent border-0 border-b border-outline-variant/30 px-1 py-3 focus:ring-0 focus:border-primary text-on-surface placeholder:text-outline/50 transition-all duration-300 text-lg" placeholder="Dr. Julian Thorne" type="text"/>
+<div class="absolute bottom-0 left-0 h-0.5 bg-primary w-0 group-focus-within:w-full transition-all duration-500 ease-out-expo"></div>
+</div>
+</div>
+<div class="space-y-1.5">
+<label class="text-[11px] font-bold tracking-widest text-on-surface-variant uppercase ml-1">Medical Email</label>
+<div class="group relative">
+<input class="w-full bg-transparent border-0 border-b border-outline-variant/30 px-1 py-3 focus:ring-0 focus:border-primary text-on-surface placeholder:text-outline/50 transition-all duration-300 text-lg" placeholder="julian@nutriscan.ai" type="email"/>
+<div class="absolute bottom-0 left-0 h-0.5 bg-primary w-0 group-focus-within:w-full transition-all duration-500 ease-out-expo"></div>
+</div>
+</div>
+<div class="space-y-1.5">
+<label class="text-[11px] font-bold tracking-widest text-on-surface-variant uppercase ml-1">Secure Passkey</label>
+<div class="group relative">
+<input class="w-full bg-transparent border-0 border-b border-outline-variant/30 px-1 py-3 focus:ring-0 focus:border-primary text-on-surface placeholder:text-outline/50 transition-all duration-300 text-lg" placeholder="••••••••••••" type="password"/>
+<div class="absolute bottom-0 left-0 h-0.5 bg-primary w-0 group-focus-within:w-full transition-all duration-500 ease-out-expo"></div>
+<button class="absolute right-2 top-4 text-outline-variant hover:text-primary transition-colors" type="button">
+<span class="material-symbols-outlined text-xl">visibility</span>
+</button>
+</div>
+</div>
+<!-- CTA Section -->
+<div class="pt-8">
+<button class="relative w-full group overflow-hidden py-5 rounded-2xl bg-primary text-on-primary font-headline font-bold text-lg tracking-tight shadow-[0_0_20px_rgba(0,105,75,0.3)] transition-all duration-300 hover:scale-[1.02] active:scale-95">
+<div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+<span class="relative z-10 flex items-center justify-center gap-2">
+                                Join NutriScan
+                                <span class="material-symbols-outlined text-xl">arrow_forward</span>
+</span>
+</button>
+</div>
+</form>
+<!-- Footer Links -->
+<div class="mt-10 text-center">
+<p class="text-sm text-on-surface-variant">
+                        Already part of the ecosystem? 
+                        <a class="text-primary font-semibold hover:underline decoration-primary/30 underline-offset-4" href="#">Sign In</a>
+</p>
+</div>
+</div>
+<!-- Bottom Disclaimer -->
+<p class="mt-8 text-center text-[11px] leading-relaxed text-outline/60 px-12 font-label uppercase tracking-widest">
+                By joining, you consent to our <a class="hover:text-primary underline" href="#">Biometric Privacy Protocol</a> and <a class="hover:text-primary underline" href="#">Clinical Terms</a>.
+            </p>
+</div>
+</main>
+<!-- Floating Bio-metric Accent (Asymmetry Element) -->
+<div class="fixed top-20 -right-16 hidden lg:block">
+<div class="glass-panel p-6 rounded-3xl outline outline-1 outline-white/20 shadow-2xl rotate-12 max-w-[200px]">
+<div class="flex items-center gap-3 mb-4">
+<div class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center">
+<span class="material-symbols-outlined text-on-primary-container" style="font-variation-settings: 'FILL' 1;">monitoring</span>
+</div>
+<div>
+<div class="text-[10px] font-bold text-outline uppercase tracking-tighter">Bio-Status</div>
+<div class="text-xs font-bold text-on-surface">Precision High</div>
+</div>
+</div>
+<div class="space-y-2">
+<div class="h-1.5 w-full bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[85%]"></div>
+</div>
+<div class="h-1.5 w-full bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-tertiary w-[60%]"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Scan Line Loader (The Signature Component) -->
+<div class="fixed top-0 left-0 w-full h-[2px] z-[100] opacity-30">
+<div class="h-full bg-gradient-to-r from-transparent via-primary to-transparent w-1/4 animate-[scan_3s_infinite]"></div>
+</div>
+<style>
+        @keyframes scan {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(400%); }
+        }
+    </style>
+</body></html>

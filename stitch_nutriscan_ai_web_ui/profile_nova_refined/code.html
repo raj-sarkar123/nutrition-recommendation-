@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "surface-container": "#e5e9ea",
+                        "on-primary-fixed-variant": "#006d4e",
+                        "outline-variant": "#abadae",
+                        "on-surface": "#2c2f30",
+                        "background": "#f5f7f8",
+                        "inverse-surface": "#0b0f10",
+                        "on-tertiary-fixed": "#005045",
+                        "on-secondary": "#c3ffed",
+                        "primary-fixed-dim": "#7defc0",
+                        "surface-variant": "#d9dddf",
+                        "on-primary-fixed": "#004d36",
+                        "tertiary-fixed-dim": "#98f0dc",
+                        "primary-fixed": "#8cfece",
+                        "error-dim": "#9f0519",
+                        "surface-container-low": "#eef1f2",
+                        "tertiary": "#006859",
+                        "error": "#b31b25",
+                        "secondary-fixed": "#afefdd",
+                        "surface": "#f5f7f8",
+                        "on-error-container": "#570008",
+                        "surface-bright": "#f5f7f8",
+                        "tertiary-container": "#a6feea",
+                        "on-secondary-fixed-variant": "#266658",
+                        "on-primary-container": "#006146",
+                        "on-tertiary": "#c2fff0",
+                        "primary-dim": "#005b41",
+                        "secondary-dim": "#16594c",
+                        "on-tertiary-container": "#006456",
+                        "tertiary-fixed": "#a6feea",
+                        "on-tertiary-fixed-variant": "#007060",
+                        "secondary-container": "#afefdd",
+                        "on-surface-variant": "#595c5d",
+                        "surface-container-lowest": "#ffffff",
+                        "on-error": "#ffefee",
+                        "primary-container": "#8cfece",
+                        "on-secondary-container": "#195c4e",
+                        "secondary-fixed-dim": "#a1e1cf",
+                        "surface-dim": "#d0d5d7",
+                        "surface-tint": "#00694b",
+                        "on-secondary-fixed": "#00483c",
+                        "on-primary": "#c7ffe3",
+                        "secondary": "#266658",
+                        "inverse-primary": "#8cfece",
+                        "outline": "#747778",
+                        "error-container": "#fb5151",
+                        "surface-container-highest": "#d9dddf",
+                        "surface-container-high": "#dfe3e4",
+                        "tertiary-dim": "#005a4e",
+                        "on-background": "#2c2f30",
+                        "primary": "#00694b",
+                        "inverse-on-surface": "#9a9d9e"
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                    fontFamily: {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .ease-out-expo {
+            transition-timing-function: cubic-bezier(0.19, 1, 0.22, 1);
+        }
+    </style>
+</head>
+<body class="bg-surface font-body text-on-surface min-h-screen pb-[80px]">
+<!-- Top Navigation -->
+<nav class="sticky top-0 z-50 flex justify-between items-center px-6 py-3 max-w-md mx-auto bg-white/60 dark:bg-slate-900/60 backdrop-blur-3xl rounded-2xl mt-4 mx-4 outline outline-1 outline-white/15 shadow-[0px_24px_48px_rgba(0,77,54,0.08)]">
+<div class="text-2xl font-bold tracking-tighter text-emerald-700 dark:text-emerald-400 drop-shadow-[0_0_8px_rgba(140,254,206,0.6)] font-headline">Nova</div>
+<div class="flex gap-4">
+<button class="text-slate-500 hover:bg-emerald-50/50 p-2 rounded-xl transition-all duration-300 ease-out-expo active:scale-95">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="text-emerald-700 font-bold hover:bg-emerald-50/50 p-2 rounded-xl transition-all duration-300 ease-out-expo active:scale-95">
+<span class="material-symbols-outlined">settings</span>
+</button>
+</div>
+</nav>
+<main class="max-w-md mx-auto px-6 mt-8 space-y-8">
+<!-- Profile Header Card (Glassmorphic) -->
+<section class="relative">
+<div class="bg-surface-container-lowest/60 backdrop-blur-2xl rounded-xl p-8 outline outline-1 outline-white/20 shadow-[0px_24px_48px_rgba(0,77,54,0.05)] text-center">
+<!-- Elevated Avatar -->
+<div class="relative -mt-16 mb-4 inline-block">
+<div class="w-24 h-24 rounded-full p-1 bg-gradient-to-tr from-primary to-primary-fixed shadow-xl">
+<img alt="User profile" class="w-full h-full object-cover rounded-full border-4 border-white" data-alt="Close-up portrait of a professional woman with a soft confident smile, neutral background, high-end commercial photography style" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA30DxrZeeU_I3_I0y2YSWDejIfZ8ToXdGcGlg4tOV3bnYusFmJ72vgNWiwcFPpLG2rmqthVyWYc97vwIv52GpVW7qEgl1DSV1q5w20WbOTo_4lJQMwUb9Di69EkrjA_EhAmG7jiQWClr1YXwOAYDqqB5SHl53R-fv3VRG7a6bXj3_zkNRmfeLqWxdetgcE5Pnp5CszbHUX_Y0hdw22z9xWx5BILNlQnAUTVhcXezKa7nTPjbDBSdSSSioxRfOH7MTkoFGDtBwN_7U"/>
+</div>
+<div class="absolute bottom-1 right-1 w-6 h-6 bg-primary border-4 border-white rounded-full"></div>
+</div>
+<h1 class="text-2xl font-headline font-bold tracking-tight text-on-surface">Elena Rodriguez</h1>
+<p class="text-on-surface-variant font-medium text-sm">Premium Member since 2023</p>
+<div class="mt-6 inline-flex items-center gap-2 bg-secondary-container px-4 py-1.5 rounded-full">
+<span class="material-symbols-outlined text-[18px] text-on-secondary-container" style="font-variation-settings: 'FILL' 1;">verified</span>
+<span class="text-[10px] font-bold tracking-widest uppercase text-on-secondary-container">NutriScan Elite</span>
+</div>
+</div>
+</section>
+<!-- Stats Grid (Asymmetric Bento) -->
+<section class="grid grid-cols-2 gap-4">
+<div class="col-span-2 bg-surface-container-low rounded-xl p-6 flex items-center justify-between group transition-all duration-300 hover:bg-surface-container-lowest cursor-default">
+<div>
+<p class="text-[10px] font-bold tracking-widest uppercase text-on-surface-variant mb-1">Current Weight</p>
+<p class="text-3xl font-headline font-bold text-primary tracking-tighter">64.2 <span class="text-lg font-medium opacity-60">kg</span></p>
+</div>
+<div class="h-12 w-24 overflow-hidden rounded-lg">
+<!-- Subtle Sparkline Placeholder -->
+<div class="w-full h-full bg-primary-fixed/30 relative overflow-hidden">
+<div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/50 to-transparent -translate-x-full animate-[shimmer_2s_infinite]"></div>
+</div>
+</div>
+</div>
+<div class="bg-surface-container-low rounded-xl p-6 transition-all duration-300 hover:bg-surface-container-lowest cursor-default">
+<span class="material-symbols-outlined text-primary mb-3">flag</span>
+<p class="text-[10px] font-bold tracking-widest uppercase text-on-surface-variant mb-1">Goal</p>
+<p class="text-xl font-headline font-bold text-on-surface">Lean Tone</p>
+</div>
+<div class="bg-surface-container-low rounded-xl p-6 transition-all duration-300 hover:bg-surface-container-lowest cursor-default">
+<span class="material-symbols-outlined text-primary mb-3">target</span>
+<p class="text-[10px] font-bold tracking-widest uppercase text-on-surface-variant mb-1">Target</p>
+<p class="text-xl font-headline font-bold text-on-surface">62.0 kg</p>
+</div>
+</section>
+<!-- Settings List -->
+<section class="space-y-3">
+<h2 class="text-sm font-headline font-bold text-on-surface-variant px-2">Account Preferences</h2>
+<div class="bg-surface-container-low rounded-xl overflow-hidden divide-y divide-surface-variant/30">
+<!-- Toggle Item -->
+<div class="flex items-center justify-between p-4 bg-surface-container-lowest/40 backdrop-blur-sm hover:bg-white transition-colors cursor-pointer group/item">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-xl bg-primary-fixed/50 flex items-center justify-center text-primary group-hover/item:scale-110 transition-transform duration-300">
+<span class="material-symbols-outlined">dark_mode</span>
+</div>
+<span class="font-medium">Dark Mode</span>
+</div>
+<div class="w-12 h-6 bg-primary-dim rounded-full relative p-1 transition-colors cursor-pointer group-hover/item:ring-2 ring-primary-fixed ring-offset-2">
+<div class="w-4 h-4 bg-white rounded-full translate-x-6 transition-transform"></div>
+</div>
+</div>
+<!-- Regular Settings Items -->
+<div class="flex items-center justify-between p-4 hover:bg-white/60 transition-colors group cursor-pointer">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-xl bg-secondary-container/50 flex items-center justify-center text-secondary group-hover:scale-110 transition-transform duration-300">
+<span class="material-symbols-outlined">shield_person</span>
+</div>
+<span class="font-medium">Privacy &amp; Data</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:translate-x-1 transition-transform">chevron_right</span>
+</div>
+<div class="flex items-center justify-between p-4 hover:bg-white/60 transition-colors group cursor-pointer">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-xl bg-secondary-container/50 flex items-center justify-center text-secondary group-hover:scale-110 transition-transform duration-300">
+<span class="material-symbols-outlined">notifications_active</span>
+</div>
+<span class="font-medium">Smart Insights</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:translate-x-1 transition-transform">chevron_right</span>
+</div>
+</div>
+</section>
+<!-- High-Contrast Logout -->
+<section class="pt-4">
+<button class="w-full bg-error-container text-on-error-container font-headline font-bold py-4 rounded-xl flex items-center justify-center gap-3 shadow-[0_4px_24px_rgba(179,27,37,0.1)] hover:scale-[1.02] active:scale-[0.96] active:bg-error-dim active:text-white active:shadow-inner transition-all duration-300 ease-out-expo">
+<span class="material-symbols-outlined">logout</span>
+                Logout Elena Rodriguez
+            </button>
+<p class="text-center text-[10px] text-on-surface-variant mt-6 tracking-widest uppercase">NutriScan AI v2.4.0</p>
+</section>
+</main>
+<!-- Bottom Navigation Shell -->
+<footer class="fixed bottom-0 left-0 right-0 z-50 flex justify-around items-center px-6 pb-8 pt-4 max-w-md mx-auto bg-white/60 dark:bg-slate-900/60 backdrop-blur-3xl rounded-t-[2rem] border-t border-white/15 shadow-[0px_-12px_32px_rgba(0,77,54,0.05)]">
+<div class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 p-3 hover:text-emerald-600 transition-all duration-300 ease-out-expo cursor-pointer">
+<span class="material-symbols-outlined" data-icon="home_health">home_health</span>
+<span class="text-[10px] font-medium tracking-widest uppercase mt-1">Home</span>
+</div>
+<div class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 p-3 hover:text-emerald-600 transition-all duration-300 ease-out-expo cursor-pointer">
+<span class="material-symbols-outlined" data-icon="exercise">exercise</span>
+<span class="text-[10px] font-medium tracking-widest uppercase mt-1">Workouts</span>
+</div>
+<div class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 p-3 hover:text-emerald-600 transition-all duration-300 ease-out-expo cursor-pointer">
+<span class="material-symbols-outlined" data-icon="monitoring">monitoring</span>
+<span class="text-[10px] font-medium tracking-widest uppercase mt-1">Insights</span>
+</div>
+<!-- Active Tab: Profile (Represented as Coach here based on existing structure) -->
+<div class="flex flex-col items-center justify-center bg-emerald-500 dark:bg-emerald-600 text-white rounded-2xl p-3 shadow-[0_0_15px_rgba(0,105,75,0.4)] scale-110 transition-all duration-300 ease-out-expo cursor-pointer">
+<span class="material-symbols-outlined" data-icon="psychology_alt" style="font-variation-settings: 'FILL' 1;">psychology_alt</span>
+<span class="text-[10px] font-medium tracking-widest uppercase mt-1">Coach</span>
+</div>
+</footer>
+</body></html>

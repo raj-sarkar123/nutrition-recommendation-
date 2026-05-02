@@ -1,0 +1,245 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ========================================
+   NOVA DESIGN SYSTEM — CSS Custom Properties
+   "The Clinical Ethereal"
+   ======================================== */
+
+:root {
+  /* Nova Color Palette (CSS variables for use in custom classes) */
+  --color-primary: #00694b;
+  --color-primary-dim: #005b41;
+  --color-primary-container: #8cfece;
+  --color-primary-fixed: #8cfece;
+  --color-primary-fixed-dim: #7defc0;
+  --color-on-primary: #c7ffe3;
+  --color-on-primary-container: #006146;
+  --color-on-primary-fixed: #004d36;
+  --color-on-primary-fixed-variant: #006d4e;
+
+  --color-secondary: #266658;
+  --color-secondary-dim: #16594c;
+  --color-secondary-container: #afefdd;
+  --color-secondary-fixed: #afefdd;
+  --color-secondary-fixed-dim: #a1e1cf;
+  --color-on-secondary: #c3ffed;
+  --color-on-secondary-container: #195c4e;
+  --color-on-secondary-fixed: #00483c;
+  --color-on-secondary-fixed-variant: #266658;
+
+  --color-tertiary: #006859;
+  --color-tertiary-dim: #005a4e;
+  --color-tertiary-container: #a6feea;
+  --color-tertiary-fixed: #a6feea;
+  --color-tertiary-fixed-dim: #98f0dc;
+  --color-on-tertiary: #c2fff0;
+  --color-on-tertiary-container: #006456;
+  --color-on-tertiary-fixed: #005045;
+  --color-on-tertiary-fixed-variant: #007060;
+
+  --color-error: #b31b25;
+  --color-error-dim: #9f0519;
+  --color-error-container: #fb5151;
+  --color-on-error: #ffefee;
+  --color-on-error-container: #570008;
+
+  --color-surface: #f5f7f8;
+  --color-surface-bright: #f5f7f8;
+  --color-surface-dim: #d0d5d7;
+  --color-surface-container: #e5e9ea;
+  --color-surface-container-low: #eef1f2;
+  --color-surface-container-high: #dfe3e4;
+  --color-surface-container-highest: #d9dddf;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-variant: #d9dddf;
+  --color-surface-tint: #00694b;
+  --color-on-surface: #2c2f30;
+  --color-on-surface-variant: #595c5d;
+  --color-on-background: #2c2f30;
+  --color-background: #f5f7f8;
+
+  --color-outline: #747778;
+  --color-outline-variant: #abadae;
+  --color-inverse-surface: #0b0f10;
+  --color-inverse-on-surface: #9a9d9e;
+  --color-inverse-primary: #8cfece;
+
+  /* Fonts */
+  --font-headline: "Manrope", sans-serif;
+  --font-body: "Inter", sans-serif;
+  --font-label: "Inter", sans-serif;
+}
+
+/* ========================================
+   GLOBAL STYLES
+   ======================================== */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-body);
+  color: var(--color-on-surface);
+  background-color: var(--color-surface);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+::selection {
+  background-color: var(--color-primary-container);
+  color: var(--color-on-primary-container);
+}
+
+/* ========================================
+   NOVA COMPONENT Classes
+   ======================================== */
+
+/* Glassmorphism Panel */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+}
+
+/* Mesh Gradient Background */
+.mesh-gradient {
+  background-color: var(--color-surface);
+  background-image:
+    radial-gradient(at 0% 0%, rgba(140, 254, 206, 0.15) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(0, 105, 75, 0.1) 0px, transparent 50%),
+    radial-gradient(at 50% 50%, rgba(166, 254, 234, 0.1) 0px, transparent 50%);
+}
+
+/* Ambient Mesh (lighter version) */
+.mesh-bg {
+  background-image:
+    radial-gradient(at 0% 0%, rgba(140, 254, 206, 0.1) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(140, 254, 206, 0.1) 0px, transparent 50%);
+}
+
+/* Ease Out Expo timing function */
+.ease-out-expo {
+  transition-timing-function: cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+/* Material Icons */
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+/* Nova Shadow */
+.nova-shadow {
+  box-shadow: 0px 24px 48px rgba(0, 77, 54, 0.08);
+}
+
+/* Nova Glow */
+.nova-glow {
+  box-shadow: 0 0 25px 0 rgba(140, 254, 206, 0.35), 0 0 50px -12px rgba(0, 105, 75, 0.25);
+}
+
+/* AI Glow */
+.ai-glow {
+  box-shadow: 0 0 20px rgba(140, 254, 206, 0.4), inset 0 0 10px rgba(140, 254, 206, 0.2);
+  animation: pulse-glow 3s infinite ease-in-out;
+}
+
+/* Text Glow */
+.text-glow {
+  text-shadow: 0 0 12px rgba(140, 254, 206, 0.8);
+}
+
+/* Ghost Border */
+.ghost-border {
+  outline: 1px solid rgba(171, 173, 174, 0.15);
+}
+
+/* ========================================
+   ANIMATIONS
+   ======================================== */
+
+@keyframes pulse-glow {
+  0%,
+  100% {
+    opacity: 0.8;
+    box-shadow: 0 0 20px rgba(140, 254, 206, 0.4);
+  }
+  50% {
+    opacity: 1;
+    box-shadow: 0 0 30px rgba(140, 254, 206, 0.6);
+  }
+}
+
+@keyframes scan-line {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(400%);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(200%);
+  }
+}
+
+@keyframes scan-vertical {
+  0% {
+    transform: translateY(-100%);
+  }
+  100% {
+    transform: translateY(400%);
+  }
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+.animate-scan-line {
+  animation: scan-line 3s infinite linear;
+}
+
+.animate-shimmer {
+  animation: shimmer 2s infinite;
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* ========================================
+   SCROLLBAR STYLING
+   ======================================== */
+
+::-webkit-scrollbar {
+  width: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-outline-variant);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-outline);
+}

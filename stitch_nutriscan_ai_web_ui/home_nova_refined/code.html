@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>NutriScan AI - Dashboard</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Manrope:wght@600;700;800&amp;display=swap" rel="stylesheet"/>
+<!-- Icons -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "inverse-on-surface": "#9a9d9e",
+                    "inverse-primary": "#8cfece",
+                    "on-tertiary": "#c2fff0",
+                    "on-secondary": "#c3ffed",
+                    "on-error-container": "#570008",
+                    "inverse-surface": "#0b0f10",
+                    "on-secondary-container": "#195c4e",
+                    "on-surface-variant": "#595c5d",
+                    "primary-fixed": "#8cfece",
+                    "on-primary-container": "#006146",
+                    "background": "#f5f7f8",
+                    "secondary-fixed": "#afefdd",
+                    "surface-container-highest": "#d9dddf",
+                    "secondary": "#266658",
+                    "on-tertiary-container": "#006456",
+                    "on-primary": "#c7ffe3",
+                    "surface-container": "#e5e9ea",
+                    "tertiary-fixed": "#a6feea",
+                    "on-tertiary-fixed-variant": "#007060",
+                    "primary-dim": "#005b41",
+                    "secondary-container": "#afefdd",
+                    "error": "#b31b25",
+                    "surface-dim": "#d0d5d7",
+                    "on-secondary-fixed-variant": "#266658",
+                    "surface-container-lowest": "#ffffff",
+                    "outline": "#747778",
+                    "secondary-fixed-dim": "#a1e1cf",
+                    "on-primary-fixed": "#004d36",
+                    "outline-variant": "#abadae",
+                    "on-secondary-fixed": "#00483c",
+                    "surface-container-high": "#dfe3e4",
+                    "surface-variant": "#d9dddf",
+                    "surface-tint": "#00694b",
+                    "primary": "#00694b",
+                    "primary-fixed-dim": "#7defc0",
+                    "tertiary-container": "#a6feea",
+                    "primary-container": "#8cfece",
+                    "surface-bright": "#f5f7f8",
+                    "surface": "#f5f7f8",
+                    "error-container": "#fb5151",
+                    "tertiary": "#006859",
+                    "on-background": "#2c2f30",
+                    "tertiary-fixed-dim": "#98f0dc",
+                    "tertiary-dim": "#005a4e",
+                    "on-primary-fixed-variant": "#006d4e",
+                    "error-dim": "#9f0519",
+                    "on-surface": "#2c2f30",
+                    "secondary-dim": "#16594c",
+                    "on-error": "#ffefee",
+                    "on-tertiary-fixed": "#005045",
+                    "surface-container-low": "#eef1f2"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "1.5rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Manrope"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      .ease-out-expo {
+        transition-timing-function: cubic-bezier(0.19, 1, 0.22, 1);
+      }
+      .glass-card {
+        background: rgba(255, 255, 255, 0.6);
+        backdrop-filter: blur(24px);
+        -webkit-backdrop-filter: blur(24px);
+      }
+      .mesh-bg {
+        background-color: #f5f7f8;
+        background-image: 
+          radial-gradient(at 0% 0%, rgba(140, 254, 206, 0.15) 0px, transparent 50%),
+          radial-gradient(at 100% 100%, rgba(0, 105, 75, 0.05) 0px, transparent 50%);
+      }
+      .text-glow {
+        text-shadow: 0 0 12px rgba(140, 254, 206, 0.8);
+      }
+      .ai-glow {
+        box-shadow: 0 0 20px rgba(140, 254, 206, 0.4), inset 0 0 10px rgba(140, 254, 206, 0.2);
+        animation: pulse-glow 3s infinite ease-in-out;
+      }
+      @keyframes pulse-glow {
+        0%, 100% { opacity: 0.8; box-shadow: 0 0 20px rgba(140, 254, 206, 0.4); }
+        50% { opacity: 1; box-shadow: 0 0 30px rgba(140, 254, 206, 0.6); }
+      }
+    </style>
+</head>
+<body class="mesh-bg font-body text-on-surface min-h-screen pb-[120px]"> <!-- Added extra padding for nav bar -->
+<!-- Top Navigation Bar -->
+<nav class="sticky top-0 z-50 flex justify-between items-center px-6 py-3 max-w-md mx-auto bg-white/60 dark:bg-slate-900/60 backdrop-blur-3xl rounded-2xl mt-4 mx-4 outline outline-1 outline-white/15 shadow-[0px_24px_48px_rgba(0,77,54,0.08)]">
+<div class="text-2xl font-bold tracking-tighter text-emerald-700 dark:text-emerald-400 drop-shadow-[0_0_8px_rgba(140,254,206,0.6)] font-headline">Nova</div>
+<div class="flex items-center gap-4">
+<button class="text-slate-500 hover:bg-emerald-50/50 p-2 rounded-xl transition-all duration-300 ease-out-expo active:scale-95">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<div class="w-10 h-10 rounded-xl overflow-hidden outline outline-2 outline-primary-container/30">
+<img alt="User profile" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAe5T0zbgb2Up1DY-jFURxejhVINecobZwxPJImxc3FDaRF4FCKGcOZ6G5y-paQBk_LpEq-Mnj1m6QJt71VPvKjkrhbbJnroWO2tOmiAFrYT24VBal8Sn9tkEK6Nrq292CK8mpAUdQFAxdUptv8wLRgmMDYtlt9gyIR8Wf8ECqqfon2Csu8iECbXBxwLgGGlTHD8yCgdFg3fkfh41Uazskzq5L7ewoii2DSqHr140lkhgm1m6vxTIxiUOOsK7ICXY9MMoT1kWD04LI"/>
+</div>
+</div>
+</nav>
+<main class="max-w-md mx-auto px-6 mt-8 space-y-8">
+<!-- Hero: Calorie Ring Section -->
+<section class="relative group">
+<div class="absolute -inset-4 bg-primary-container/20 blur-3xl rounded-full opacity-50 group-hover:opacity-70 transition-opacity"></div>
+<div class="glass-card rounded-xl p-8 outline outline-1 outline-white/20 shadow-[0px_24px_48px_rgba(0,77,54,0.08)] flex flex-col items-center relative overflow-hidden">
+<!-- Decorative Scan Line -->
+<div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary to-transparent opacity-30"></div>
+<div class="relative w-48 h-48 flex items-center justify-center">
+<!-- Progress Ring (SVG) -->
+<svg class="w-full h-full transform -rotate-90">
+<defs>
+<lineargradient id="ringGradient" x1="0%" x2="100%" y1="0%" y2="100%">
+<stop offset="0%" stop-color="#00694b"></stop>
+<stop offset="100%" stop-color="#8cfece"></stop>
+</lineargradient>
+<filter height="140%" id="glow" width="140%" x="-20%" y="-20%">
+<fegaussianblur result="blur" stddeviation="3"></fegaussianblur>
+<fecomposite in="SourceGraphic" in2="blur" operator="over"></fecomposite>
+</filter>
+</defs>
+<circle class="text-surface-container" cx="96" cy="96" fill="transparent" r="82" stroke="currentColor" stroke-width="14"></circle>
+<circle class="transition-all duration-1000" cx="96" cy="96" fill="transparent" filter="url(#glow)" r="82" stroke="url(#ringGradient)" stroke-dasharray="515" stroke-dashoffset="130" stroke-linecap="round" stroke-width="14"></circle>
+</svg>
+<div class="absolute inset-0 flex flex-col items-center justify-center text-center">
+<span class="font-headline text-4xl font-extrabold tracking-tighter text-on-surface">1,420</span>
+<span class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant font-medium">kcal left</span>
+</div>
+</div>
+<div class="mt-6 text-center">
+<h2 class="font-headline text-xl font-bold tracking-tight text-on-surface">Optimal Metabolism</h2>
+<p class="text-on-surface-variant text-sm mt-1">AI indicates high thermic efficiency today.</p>
+</div>
+</div>
+</section>
+<!-- AI Insight Small Glowing Card -->
+<section class="px-2">
+<div class="ai-glow bg-emerald-500/10 border border-emerald-500/20 p-4 rounded-2xl flex items-center gap-4 transition-transform hover:scale-[1.02] cursor-default">
+<div class="w-10 h-10 rounded-full bg-emerald-500 flex items-center justify-center text-white shrink-0 shadow-[0_0_15px_rgba(16,185,129,0.4)]">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+</div>
+<div>
+<h4 class="font-headline font-bold text-emerald-800 text-xs uppercase tracking-wider mb-0.5">Quick AI Check</h4>
+<p class="text-emerald-900/80 text-xs leading-tight">You’ve consumed 70% of your daily calories. Choose low-carb meals next.</p>
+</div>
+</div>
+</section>
+<!-- Quick Actions -->
+<section class="grid grid-cols-2 gap-4">
+<button class="glass-card p-6 rounded-xl outline outline-1 outline-white/20 shadow-[0px_12px_24px_rgba(0,77,54,0.04)] flex flex-col items-start gap-4 group hover:bg-white hover:scale-105 hover:shadow-[0px_20px_40px_rgba(0,77,54,0.1)] transition-all duration-300 ease-out-expo active:scale-95">
+<div class="w-12 h-12 rounded-xl bg-primary-container flex items-center justify-center text-primary group-hover:scale-110 group-hover:bg-primary group-hover:text-white transition-all duration-300">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">restaurant_menu</span>
+</div>
+<div>
+<span class="font-headline font-bold text-on-surface block">Scan Menu</span>
+<span class="text-xs text-on-surface-variant group-hover:text-primary transition-colors">Real-time Analysis</span>
+</div>
+</button>
+<button class="glass-card p-6 rounded-xl outline outline-1 outline-white/20 shadow-[0px_12px_24px_rgba(0,77,54,0.04)] flex flex-col items-start gap-4 group hover:bg-white hover:scale-105 hover:shadow-[0px_20px_40px_rgba(0,77,54,0.1)] transition-all duration-300 ease-out-expo active:scale-95">
+<div class="w-12 h-12 rounded-xl bg-secondary-container flex items-center justify-center text-secondary group-hover:scale-110 group-hover:bg-secondary group-hover:text-white transition-all duration-300">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">add_a_photo</span>
+</div>
+<div>
+<span class="font-headline font-bold text-on-surface block">Track Meal</span>
+<span class="text-xs text-on-surface-variant group-hover:text-secondary transition-colors">Instant Logging</span>
+</div>
+</button>
+</section>
+<!-- Macro Breakdown -->
+<section class="space-y-4">
+<h3 class="font-headline text-sm font-bold tracking-widest uppercase text-on-surface-variant px-2">Nutrient Precision</h3>
+<div class="space-y-3">
+<!-- Protein -->
+<div class="bg-surface-container-lowest p-4 rounded-xl flex items-center gap-4 group hover:bg-surface-container-low transition-colors duration-300 border border-white/50">
+<div class="w-1.5 h-10 bg-primary rounded-full"></div>
+<div class="flex-1">
+<div class="flex justify-between items-end mb-2">
+<span class="font-headline font-bold text-on-surface">Protein</span>
+<span class="font-label text-xs text-on-surface-variant font-medium">84g / 120g</span>
+</div>
+<div class="h-1.5 w-full bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-primary rounded-full transition-all duration-1000" style="width: 70%"></div>
+</div>
+</div>
+</div>
+<!-- Carbs -->
+<div class="bg-surface-container-lowest p-4 rounded-xl flex items-center gap-4 group hover:bg-surface-container-low transition-colors duration-300 border border-white/50">
+<div class="w-1.5 h-10 bg-secondary rounded-full"></div>
+<div class="flex-1">
+<div class="flex justify-between items-end mb-2">
+<span class="font-headline font-bold text-on-surface">Carbs</span>
+<span class="font-label text-xs text-on-surface-variant font-medium">110g / 200g</span>
+</div>
+<div class="h-1.5 w-full bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-secondary rounded-full transition-all duration-1000" style="width: 55%"></div>
+</div>
+</div>
+</div>
+<!-- Fats -->
+<div class="bg-surface-container-lowest p-4 rounded-xl flex items-center gap-4 group hover:bg-surface-container-low transition-colors duration-300 border border-white/50">
+<div class="w-1.5 h-10 bg-tertiary-dim rounded-full"></div>
+<div class="flex-1">
+<div class="flex justify-between items-end mb-2">
+<span class="font-headline font-bold text-on-surface">Fats</span>
+<span class="font-label text-xs text-on-surface-variant font-medium">42g / 65g</span>
+</div>
+<div class="h-1.5 w-full bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-tertiary-dim rounded-full transition-all duration-1000" style="width: 64%"></div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Main AI Insight Banner -->
+<section class="pb-10">
+<div class="bg-primary-container/30 backdrop-blur-md border border-primary-container p-5 rounded-xl flex gap-4 items-start shadow-[0_0_15px_rgba(140,254,206,0.3)]">
+<div class="text-primary mt-1">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+</div>
+<div>
+<h4 class="font-headline font-bold text-on-primary-container text-sm">AI Insight</h4>
+<p class="text-on-primary-container/80 text-xs mt-1 leading-relaxed">Increasing fiber intake by 5g during your next meal will stabilize glucose spikes observed after your afternoon snack.</p>
+</div>
+</div>
+</section>
+</main>
+<!-- Bottom Navigation Bar -->
+<div class="fixed bottom-0 left-0 right-0 z-50 flex justify-around items-center px-6 pb-8 pt-4 max-w-md mx-auto bg-white/60 dark:bg-slate-900/60 backdrop-blur-3xl rounded-t-[2rem] shadow-[0px_-12px_32px_rgba(0,77,54,0.1)]">
+<!-- Home (Active) -->
+<div class="flex flex-col items-center justify-center bg-emerald-500 dark:bg-emerald-600 text-white rounded-2xl p-3 shadow-[0_0_15px_rgba(0,105,75,0.4)] ease-out-expo duration-300 scale-110">
+<span class="material-symbols-outlined">home_health</span>
+<span class="text-[10px] font-medium tracking-widest uppercase Inter mt-1">Home</span>
+</div>
+<!-- Workouts -->
+<div class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 p-3 hover:text-emerald-600 transition-all duration-300 ease-out-expo">
+<span class="material-symbols-outlined">exercise</span>
+<span class="text-[10px] font-medium tracking-widest uppercase Inter mt-1">Workouts</span>
+</div>
+<!-- Insights -->
+<div class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 p-3 hover:text-emerald-600 transition-all duration-300 ease-out-expo">
+<span class="material-symbols-outlined">monitoring</span>
+<span class="text-[10px] font-medium tracking-widest uppercase Inter mt-1">Insights</span>
+</div>
+<!-- Coach -->
+<div class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 p-3 hover:text-emerald-600 transition-all duration-300 ease-out-expo">
+<span class="material-symbols-outlined">psychology_alt</span>
+<span class="text-[10px] font-medium tracking-widest uppercase Inter mt-1">Coach</span>
+</div>
+</div>
+</body></html>

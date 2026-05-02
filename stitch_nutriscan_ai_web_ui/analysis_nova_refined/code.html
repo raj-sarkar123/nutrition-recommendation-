@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "inverse-on-surface": "#9a9d9e",
+                    "inverse-primary": "#8cfece",
+                    "on-tertiary": "#c2fff0",
+                    "on-secondary": "#c3ffed",
+                    "on-error-container": "#570008",
+                    "inverse-surface": "#0b0f10",
+                    "on-secondary-container": "#195c4e",
+                    "on-surface-variant": "#595c5d",
+                    "primary-fixed": "#8cfece",
+                    "on-primary-container": "#006146",
+                    "background": "#f5f7f8",
+                    "secondary-fixed": "#afefdd",
+                    "surface-container-highest": "#d9dddf",
+                    "secondary": "#266658",
+                    "on-tertiary-container": "#006456",
+                    "on-primary": "#c7ffe3",
+                    "surface-container": "#e5e9ea",
+                    "tertiary-fixed": "#a6feea",
+                    "on-tertiary-fixed-variant": "#007060",
+                    "primary-dim": "#005b41",
+                    "secondary-container": "#afefdd",
+                    "error": "#b31b25",
+                    "surface-dim": "#d0d5d7",
+                    "on-secondary-fixed-variant": "#266658",
+                    "surface-container-lowest": "#ffffff",
+                    "outline": "#747778",
+                    "secondary-fixed-dim": "#a1e1cf",
+                    "on-primary-fixed": "#004d36",
+                    "outline-variant": "#abadae",
+                    "on-secondary-fixed": "#00483c",
+                    "surface-container-high": "#dfe3e4",
+                    "surface-variant": "#d9dddf",
+                    "surface-tint": "#00694b",
+                    "primary": "#00694b",
+                    "primary-fixed-dim": "#7defc0",
+                    "tertiary-container": "#a6feea",
+                    "primary-container": "#8cfece",
+                    "surface-bright": "#f5f7f8",
+                    "surface": "#f5f7f8",
+                    "error-container": "#fb5151",
+                    "tertiary": "#006859",
+                    "on-background": "#2c2f30",
+                    "tertiary-fixed-dim": "#98f0dc",
+                    "tertiary-dim": "#005a4e",
+                    "on-primary-fixed-variant": "#006d4e",
+                    "error-dim": "#9f0519",
+                    "on-surface": "#2c2f30",
+                    "secondary-dim": "#16594c",
+                    "on-error": "#ffefee",
+                    "on-tertiary-fixed": "#005045",
+                    "surface-container-low": "#eef1f2"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Manrope"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .ease-out-expo { transition-timing-function: cubic-bezier(0.19, 1, 0.22, 1); }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glow-emerald {
+            filter: drop-shadow(0 0 12px rgba(140, 254, 206, 0.4));
+        }
+        .scan-line {
+            background: linear-gradient(90deg, transparent, #8cfece, transparent);
+            height: 2px;
+            width: 100%;
+            position: absolute;
+            top: 0;
+            left: -100%;
+            animation: scan 3s infinite linear;
+        }
+        @keyframes scan {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+        body {
+            background-color: #f5f7f8;
+            background-image: radial-gradient(circle at 10% 20%, rgba(140, 254, 206, 0.1) 0%, transparent 40%),
+                              radial-gradient(circle at 90% 80%, rgba(140, 254, 206, 0.05) 0%, transparent 40%);
+        }
+        .nova-glow {
+            box-shadow: 0 0 25px 0 rgba(140, 254, 206, 0.35), 0 0 50px -12px rgba(0, 105, 75, 0.25);
+        }
+    </style>
+</head>
+<body class="font-body text-on-surface min-h-screen">
+<!-- Header -->
+<header class="sticky top-0 z-50 bg-white/60 backdrop-blur-3xl px-6 py-4 flex items-center justify-between outline outline-1 outline-white/15 max-w-md mx-auto rounded-2xl mt-4">
+<div class="flex items-center gap-4">
+<button class="w-10 h-10 flex items-center justify-center rounded-xl bg-surface-container-low text-on-surface hover:bg-emerald-50/50 transition-all active:scale-95">
+<span class="material-symbols-outlined">arrow_back_ios_new</span>
+</button>
+<h1 class="font-headline font-bold text-xl tracking-tight text-on-surface">Menu Analysis</h1>
+</div>
+<button class="w-10 h-10 flex items-center justify-center rounded-xl bg-surface-container-low text-on-surface">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</header>
+<main class="max-w-md mx-auto px-6 mt-8 space-y-8 pb-48">
+<!-- Hero: Best Choice -->
+<section class="relative group">
+<div class="absolute -inset-1.5 bg-gradient-to-br from-primary-fixed via-primary to-primary-container rounded-[2.5rem] blur-xl opacity-40 group-hover:opacity-60 transition duration-1000"></div>
+<div class="relative bg-surface-container-lowest rounded-[2rem] overflow-hidden shadow-2xl outline outline-1 outline-primary/20 nova-glow">
+<div class="scan-line opacity-50"></div>
+<div class="relative h-56 overflow-hidden">
+<img alt="Premium healthy bowl" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out-expo" data-alt="Gourmet healthy bowl with grilled salmon, fresh avocado slices, quinoa, and vibrant microgreens in a ceramic bowl, bright clinical lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBmDa12kMsOOCkAKPp4td3F-65nksPUp2B_GxXvRnHGHizeVebP2_ry3lNtrwQAmhU0Ob4fBn1phwdtmqk70UGyVfFTMLQezD5Gsips1eMLQ5Te2z7fzBdbb2nZ2VcYBlkvDkqM0cFR1TGqNYjaCluFCu_p64D-k0dCiZj6YTNU6ob9WyWaGFqMKs0rBqxX6osPcPY5s-EEmyYDzQPpvbQrtLpCY_pElSlFQA4BF0Znb8Qj-8UIVyUSmC202rAZVMzIFkQoJIzaxOY"/>
+<div class="absolute top-4 left-4">
+<span class="bg-primary/90 backdrop-blur-md text-white px-4 py-1.5 rounded-full text-[10px] font-bold tracking-widest uppercase flex items-center gap-2 shadow-lg ring-1 ring-white/30">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+                            Nova's Pick
+                        </span>
+</div>
+</div>
+<div class="p-6">
+<div class="flex justify-between items-start mb-2">
+<h2 class="font-headline text-2xl font-bold tracking-tight text-on-primary-fixed">Mediterranean Quinoa Power Bowl</h2>
+<span class="text-primary font-bold text-xl drop-shadow-sm">98/100</span>
+</div>
+<p class="text-on-surface-variant body-md leading-relaxed mb-6">Optimized for your current metabolic state. High protein, balanced omega-3s, and low glycemic impact.</p>
+<div class="grid grid-cols-3 gap-3">
+<div class="bg-surface-container-low/50 p-3 rounded-xl border border-white/40">
+<span class="block text-[10px] uppercase tracking-widest text-on-surface-variant mb-1">Calories</span>
+<span class="font-headline font-bold text-on-surface">420 kcal</span>
+</div>
+<div class="bg-surface-container-low/50 p-3 rounded-xl border border-white/40">
+<span class="block text-[10px] uppercase tracking-widest text-on-surface-variant mb-1">Protein</span>
+<span class="font-headline font-bold text-on-surface">32g</span>
+</div>
+<div class="bg-surface-container-low/50 p-3 rounded-xl border border-white/40">
+<span class="block text-[10px] uppercase tracking-widest text-on-surface-variant mb-1">Net Carbs</span>
+<span class="font-headline font-bold text-on-surface">18g</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Recommendations List -->
+<section class="space-y-4">
+<div class="flex justify-between items-center px-2">
+<h3 class="font-headline font-semibold text-lg tracking-tight">Full Menu Analysis</h3>
+<span class="text-on-surface-variant text-sm font-medium">3 Items Found</span>
+</div>
+<!-- Card: Recommend -->
+<div class="bg-white/60 backdrop-blur-xl p-4 rounded-2xl flex gap-4 items-center outline outline-1 outline-white/15 shadow-sm hover:shadow-md hover:bg-white/90 hover:-translate-y-0.5 transition-all duration-300 ease-out-expo group cursor-pointer">
+<div class="w-16 h-16 rounded-xl overflow-hidden flex-shrink-0">
+<img alt="Grilled Chicken Salad" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" data-alt="Grilled chicken breast salad with walnuts and balsamic glaze in a minimalist white bowl, soft clinical aesthetic" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCcnMIwMgBS35Epb9pJxV9FTtjwiI9EhAw_GshAvAsdv5FuctkOKaSO0hCOtDaTDaSsy7Vk5VTiTlc503s7fxsBhYpAyj06NQfvjAYGdwvA8H6GPv5jcmYXFDWM5VA1JBVDnh6CGfp4HAi54tW5epiks6QxJQTkhn5SDTQFyG1QVoDDdGC-JTLHfT61NytItnXIRXkn4SbANuIjwHD4LGkMRD0eFvTqOYjJ5Gq6SPu6mSQARctCAGoczSQ896cf6dPlaGBW7VyuvkM"/>
+</div>
+<div class="flex-grow">
+<div class="flex justify-between items-start">
+<h4 class="font-headline font-bold text-on-surface">Grilled Chicken &amp; Nut Salad</h4>
+<span class="bg-primary-container/80 text-on-primary-container px-2 py-0.5 rounded-full text-[9px] font-bold tracking-wider uppercase ring-1 ring-primary/10">Safe</span>
+</div>
+<div class="flex items-center gap-4 mt-2">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-sm text-primary">local_fire_department</span>
+<span class="text-xs text-on-surface-variant">380 kcal</span>
+</div>
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-sm text-primary">bolt</span>
+<span class="text-xs text-on-surface-variant">High Fiber</span>
+</div>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:translate-x-1 transition-transform group-hover:text-primary">chevron_right</span>
+</div>
+<!-- Card: Caution -->
+<div class="bg-white/60 backdrop-blur-xl p-4 rounded-2xl flex gap-4 items-center outline outline-1 outline-white/15 shadow-sm hover:shadow-md hover:bg-white/90 hover:-translate-y-0.5 transition-all duration-300 ease-out-expo group cursor-pointer">
+<div class="w-16 h-16 rounded-xl overflow-hidden flex-shrink-0">
+<img alt="Miso Salmon" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" data-alt="Miso glazed salmon fillet with steamed bok choy on a dark slate plate, overhead shot, precision food photography" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBqkQ_HsjCXOpu1Hpe-2IdWFTNrw5-PnhrYuVWdG0bE8ny7GC8ublsFf-xj_CVOFA4NleFwX9CKubhARQGZsjqtSeuXV6Y92a0U3j848-kAhy_K37Ty7neCDKqPbIKuFeNbv6DFfQDnzsO5o0kek0jxyUUhidCCjjLfsl6b7nP0IzlwhC_vmv2i1rsJIRQIxebvi1ZbF5CBh4Iu6ngnFuKGS7SfhYWOnoRhUTKthYighrNm25rvKfSEM_XAuMhJ7613TiAoml_W818"/>
+</div>
+<div class="flex-grow">
+<div class="flex justify-between items-start">
+<h4 class="font-headline font-bold text-on-surface">Miso Glazed Atlantic Salmon</h4>
+<span class="bg-secondary-container/80 text-on-secondary-container px-2 py-0.5 rounded-full text-[9px] font-bold tracking-wider uppercase ring-1 ring-secondary/10">Moderate</span>
+</div>
+<div class="flex items-center gap-4 mt-2">
+<div class="flex items-center gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined text-sm">local_fire_department</span>
+<span class="text-xs">510 kcal</span>
+</div>
+<div class="flex items-center gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined text-sm">water_drop</span>
+<span class="text-xs">High Sodium</span>
+</div>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:translate-x-1 transition-transform group-hover:text-secondary">chevron_right</span>
+</div>
+<!-- Card: Avoid -->
+<div class="bg-white/60 backdrop-blur-xl p-4 rounded-2xl flex gap-4 items-center outline outline-1 outline-white/15 shadow-sm hover:shadow-md hover:bg-white/90 hover:-translate-y-0.5 transition-all duration-300 ease-out-expo group opacity-80 cursor-pointer">
+<div class="w-16 h-16 rounded-xl overflow-hidden flex-shrink-0 grayscale group-hover:grayscale-0 transition-all duration-500">
+<img alt="Cheeseburger" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" data-alt="Close up of a greasy double cheeseburger with melting cheese and bacon on a wooden board, warm saturated colors" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCEztY8_hUH6CK3l3eGKmnbbhYE7cS_-D33VpPY9CE2ub52Xf0PHcMuJ9DR5cLNh5zHLbMEQdskpr2rfCHIuOJD4XZGfm_Z4TJHBWRQ9z7yLn6MOzfgiIHojsliLZRd661xnQzlE2myMWRMURIt-xHSqHRkY1WA0TLIW-_P-4nkxp0JLFtrZXJyBL0dIDSwbdEk2fecAt-yKQ8KT1NdmUD2nbIFSIU8fwrDm4I09hwpH1cnmnE4UK90-2NOjEtNlg2Ynd1tOWEP0oE"/>
+</div>
+<div class="flex-grow">
+<div class="flex justify-between items-start">
+<h4 class="font-headline font-bold text-on-surface">Nova Signature Burger</h4>
+<span class="bg-error-container/80 text-white px-2 py-0.5 rounded-full text-[9px] font-bold tracking-wider uppercase ring-1 ring-error/10">Avoid</span>
+</div>
+<div class="flex items-center gap-4 mt-2">
+<div class="flex items-center gap-1 text-error">
+<span class="material-symbols-outlined text-sm">warning</span>
+<span class="text-xs">Exceeds Fat Budget</span>
+</div>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:translate-x-1 transition-transform group-hover:text-error">chevron_right</span>
+</div>
+</section>
+</main>
+<!-- Calorie Analysis Bar -->
+<div class="fixed bottom-0 left-0 right-0 z-50 px-6 pb-8 pt-4 max-w-md mx-auto bg-white/70 dark:bg-slate-900/70 backdrop-blur-3xl rounded-t-[2.5rem] border-t border-white/20 shadow-[0px_-20px_50px_rgba(0,0,0,0.1)] ring-1 ring-white/30">
+<div class="mb-4 flex justify-between items-end">
+<div>
+<p class="text-[10px] font-medium tracking-widest uppercase text-on-surface-variant">Calorie Budget Used</p>
+<div class="flex items-baseline gap-1">
+<span class="font-headline font-extrabold text-2xl text-primary">1,420</span>
+<span class="text-on-surface-variant text-sm font-medium">/ 2,100 kcal</span>
+</div>
+</div>
+<div class="text-right">
+<span class="text-[10px] font-bold text-primary uppercase tracking-wider bg-primary-container px-3 py-1 rounded-full shadow-sm">68% Capacity</span>
+</div>
+</div>
+<!-- Progress Bar -->
+<div class="h-4 w-full bg-surface-container rounded-full overflow-hidden relative border border-white/50 shadow-inner">
+<div class="h-full bg-gradient-to-r from-primary to-primary-container w-[68%] rounded-full relative overflow-hidden">
+<div class="absolute inset-0 bg-white/20 animate-pulse"></div>
+<div class="absolute inset-0 bg-[linear-gradient(90deg,transparent_0%,rgba(255,255,255,0.4)_50%,transparent_100%)] -translate-x-full animate-[shimmer_2s_infinite]"></div>
+</div>
+</div>
+<nav class="mt-6 flex justify-around items-center">
+<div class="flex flex-col items-center justify-center bg-emerald-500 text-white rounded-2xl p-3 shadow-[0_8px_20px_rgba(0,105,75,0.3)] transition-all duration-300 scale-105 cursor-pointer">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">restaurant</span>
+<span class="text-[10px] font-bold tracking-widest uppercase mt-1">Menu</span>
+</div>
+<div class="flex flex-col items-center justify-center text-slate-400 p-3 hover:text-emerald-600 transition-all cursor-pointer group">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform">monitoring</span>
+<span class="text-[10px] font-medium tracking-widest uppercase mt-1">Stats</span>
+</div>
+<div class="flex flex-col items-center justify-center text-slate-400 p-3 hover:text-emerald-600 transition-all cursor-pointer group">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform">psychology_alt</span>
+<span class="text-[10px] font-medium tracking-widest uppercase mt-1">Coach</span>
+</div>
+<div class="flex flex-col items-center justify-center text-slate-400 p-3 hover:text-emerald-600 transition-all cursor-pointer group">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform">person</span>
+<span class="text-[10px] font-medium tracking-widest uppercase mt-1">Profile</span>
+</div>
+</nav>
+</div>
+<style>
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(200%); }
+        }
+    </style>
+</body></html>

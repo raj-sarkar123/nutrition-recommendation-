@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Nova Edition - NutriScan AI Onboarding</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "surface-container": "#e5e9ea",
+                        "on-primary-fixed-variant": "#006d4e",
+                        "outline-variant": "#abadae",
+                        "on-surface": "#2c2f30",
+                        "background": "#f5f7f8",
+                        "inverse-surface": "#0b0f10",
+                        "on-tertiary-fixed": "#005045",
+                        "on-secondary": "#c3ffed",
+                        "primary-fixed-dim": "#7defc0",
+                        "surface-variant": "#d9dddf",
+                        "on-primary-fixed": "#004d36",
+                        "tertiary-fixed-dim": "#98f0dc",
+                        "primary-fixed": "#8cfece",
+                        "error-dim": "#9f0519",
+                        "surface-container-low": "#eef1f2",
+                        "tertiary": "#006859",
+                        "error": "#b31b25",
+                        "secondary-fixed": "#afefdd",
+                        "surface": "#f5f7f8",
+                        "on-error-container": "#570008",
+                        "surface-bright": "#f5f7f8",
+                        "tertiary-container": "#a6feea",
+                        "on-secondary-fixed-variant": "#266658",
+                        "on-primary-container": "#006146",
+                        "on-tertiary": "#c2fff0",
+                        "primary-dim": "#005b41",
+                        "secondary-dim": "#16594c",
+                        "on-tertiary-container": "#006456",
+                        "tertiary-fixed": "#a6feea",
+                        "on-tertiary-fixed-variant": "#007060",
+                        "secondary-container": "#afefdd",
+                        "on-surface-variant": "#595c5d",
+                        "surface-container-lowest": "#ffffff",
+                        "on-error": "#ffefee",
+                        "primary-container": "#8cfece",
+                        "on-secondary-container": "#195c4e",
+                        "secondary-fixed-dim": "#a1e1cf",
+                        "surface-dim": "#d0d5d7",
+                        "surface-tint": "#00694b",
+                        "on-secondary-fixed": "#00483c",
+                        "on-primary": "#c7ffe3",
+                        "secondary": "#266658",
+                        "inverse-primary": "#8cfece",
+                        "outline": "#747778",
+                        "error-container": "#fb5151",
+                        "surface-container-highest": "#d9dddf",
+                        "surface-container-high": "#dfe3e4",
+                        "tertiary-dim": "#005a4e",
+                        "on-background": "#2c2f30",
+                        "primary": "#00694b",
+                        "inverse-on-surface": "#9a9d9e"
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "1.5rem",
+                        "2xl": "2rem",
+                        "full": "9999px"
+                    },
+                    fontFamily: {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    },
+                    transitionTimingFunction: {
+                        "ease-out-expo": "cubic-bezier(0.19, 1, 0.22, 1)",
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+        }
+        .mesh-gradient {
+            background-color: #f5f7f8;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(140, 254, 206, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(140, 254, 206, 0.1) 0px, transparent 50%);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .step-active {
+            width: 2rem;
+            background-color: #00694b;
+        }
+    </style>
+</head>
+<body class="mesh-gradient font-body text-on-surface min-h-screen flex flex-col antialiased">
+<!-- Top Navigation Anchor -->
+<header class="sticky top-0 z-50 flex justify-between items-center px-6 py-3 max-w-md mx-auto w-full bg-white/60 dark:bg-slate-900/60 backdrop-blur-3xl rounded-2xl mt-4 outline outline-1 outline-white/15 shadow-[0px_24px_48px_rgba(0,77,54,0.08)]">
+<div class="text-2xl font-bold tracking-tighter text-emerald-700 dark:text-emerald-400 drop-shadow-[0_0_8px_rgba(140,254,206,0.6)] font-headline">Nova</div>
+<div class="flex gap-4">
+<button class="p-2 text-slate-500 hover:bg-emerald-50/50 transition-all duration-300 rounded-full">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="p-2 text-slate-500 hover:bg-emerald-50/50 transition-all duration-300 rounded-full">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+</button>
+</div>
+</header>
+<main class="flex-grow flex flex-col items-center px-6 pt-12 pb-32 max-w-xl mx-auto w-full">
+<!-- Progress Indicator -->
+<div class="w-full flex justify-center gap-2 mb-12">
+<div class="h-1.5 step-active rounded-full transition-all duration-500"></div>
+<div class="h-1.5 w-6 bg-surface-container rounded-full"></div>
+<div class="h-1.5 w-6 bg-surface-container rounded-full"></div>
+<div class="h-1.5 w-6 bg-surface-container rounded-full"></div>
+</div>
+<!-- Hero Branding -->
+<div class="text-center mb-10">
+<h1 class="text-5xl font-extrabold tracking-[-0.04em] font-headline text-on-surface mb-3">Goal Selection</h1>
+<p class="text-on-surface-variant font-medium">Define your metabolic path with clinical precision.</p>
+</div>
+<!-- Goal Cards: Asymmetric Bento Style -->
+<div class="grid grid-cols-1 gap-4 w-full mb-12">
+<!-- Lose Goal - Active State -->
+<div class="glass-panel p-6 rounded-2xl border-2 border-primary shadow-[0_0_20px_rgba(0,105,75,0.15)] relative overflow-hidden group cursor-pointer transition-all duration-300 ease-out-expo hover:shadow-[0_0_30px_rgba(0,105,75,0.25)] hover:border-primary/80">
+<div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary to-transparent opacity-50"></div>
+<div class="flex justify-between items-start">
+<div class="space-y-1">
+<span class="text-primary font-bold text-sm tracking-widest uppercase">Targeted Reduction</span>
+<h3 class="text-2xl font-bold font-headline text-on-surface tracking-tight">Lose Weight</h3>
+</div>
+<div class="bg-primary text-white p-2 rounded-xl shadow-[0_8px_16px_rgba(0,105,75,0.3)] transition-transform group-hover:scale-110">
+<span class="material-symbols-outlined" data-icon="trending_down">trending_down</span>
+</div>
+</div>
+<p class="mt-4 text-on-surface-variant text-sm leading-relaxed max-w-[80%]">Optimize fat oxidation and caloric deficit parameters while preserving lean muscle mass.</p>
+<div class="mt-4 flex gap-2">
+<span class="px-3 py-1 bg-primary-container text-on-primary-container rounded-full text-[10px] font-bold tracking-wider uppercase">Active Selection</span>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<!-- Maintain Goal -->
+<div class="bg-surface-container-low p-6 rounded-2xl border border-white/20 hover:bg-surface-container-lowest transition-all duration-300 group cursor-pointer shadow-sm hover:shadow-md hover:-translate-y-1">
+<div class="bg-surface-container-high p-2 w-fit rounded-xl mb-4 group-hover:bg-primary-container transition-all duration-300 group-hover:scale-110">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary" data-icon="balance">balance</span>
+</div>
+<h3 class="text-xl font-bold font-headline text-on-surface tracking-tight">Maintain</h3>
+<p class="mt-2 text-on-surface-variant text-xs leading-relaxed">Sustainable energy balance and vitality metrics.</p>
+</div>
+<!-- Gain Goal -->
+<div class="bg-surface-container-low p-6 rounded-2xl border border-white/20 hover:bg-surface-container-lowest transition-all duration-300 group cursor-pointer shadow-sm hover:shadow-md hover:-translate-y-1">
+<div class="bg-surface-container-high p-2 w-fit rounded-xl mb-4 group-hover:bg-primary-container transition-all duration-300 group-hover:scale-110">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary" data-icon="fitness_center">fitness_center</span>
+</div>
+<h3 class="text-xl font-bold font-headline text-on-surface tracking-tight">Gain</h3>
+<p class="mt-2 text-on-surface-variant text-xs leading-relaxed">Hypertrophy-focused nutrient density protocols.</p>
+</div>
+</div>
+</div>
+<!-- Metric Inputs -->
+<section class="w-full space-y-8 mb-12">
+<h2 class="text-lg font-bold font-headline text-on-surface border-l-4 border-primary pl-4">Physical Biometrics</h2>
+<div class="grid grid-cols-2 gap-8">
+<div class="relative group">
+<label class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mb-2 block group-focus-within:text-primary transition-colors">Current Weight</label>
+<input class="w-full bg-transparent border-0 border-b border-outline-variant/30 py-3 text-2xl font-headline font-semibold text-on-surface focus:ring-0 focus:border-primary transition-all" placeholder="00.0" type="text"/>
+<span class="absolute bottom-3 right-0 text-on-surface-variant font-medium group-focus-within:text-primary transition-colors">kg</span>
+</div>
+<div class="relative group">
+<label class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mb-2 block group-focus-within:text-primary transition-colors">Height</label>
+<input class="w-full bg-transparent border-0 border-b border-outline-variant/30 py-3 text-2xl font-headline font-semibold text-on-surface focus:ring-0 focus:border-primary transition-all" placeholder="000" type="text"/>
+<span class="absolute bottom-3 right-0 text-on-surface-variant font-medium group-focus-within:text-primary transition-colors">cm</span>
+</div>
+</div>
+</section>
+<!-- Diet Preferences: Glass Chips -->
+<section class="w-full space-y-6 mb-16">
+<h2 class="text-lg font-bold font-headline text-on-surface border-l-4 border-primary pl-4">Dietary Architecture</h2>
+<div class="flex flex-wrap gap-3">
+<button class="px-5 py-2.5 rounded-full glass-panel border border-primary text-primary font-semibold text-sm shadow-sm scale-105 transition-all hover:shadow-md hover:bg-white/80 active:scale-95">Keto</button>
+<button class="px-5 py-2.5 rounded-full bg-surface-container-low border border-white/30 text-on-surface-variant font-medium text-sm hover:bg-white/50 hover:border-primary/50 hover:text-primary transition-all active:scale-95">Vegan</button>
+<button class="px-5 py-2.5 rounded-full bg-surface-container-low border border-white/30 text-on-surface-variant font-medium text-sm hover:bg-white/50 hover:border-primary/50 hover:text-primary transition-all active:scale-95">Paleo</button>
+<button class="px-5 py-2.5 rounded-full bg-surface-container-low border border-white/30 text-on-surface-variant font-medium text-sm hover:bg-white/50 hover:border-primary/50 hover:text-primary transition-all active:scale-95">Mediterranean</button>
+<button class="px-5 py-2.5 rounded-full bg-surface-container-low border border-white/30 text-on-surface-variant font-medium text-sm hover:bg-white/50 hover:border-primary/50 hover:text-primary transition-all active:scale-95">Low-Carb</button>
+<button class="px-5 py-2.5 rounded-full bg-surface-container-low border border-white/30 text-on-surface-variant font-medium text-sm hover:bg-white/50 hover:border-primary/50 hover:text-primary transition-all active:scale-95">Intermittent Fasting</button>
+</div>
+</section>
+<!-- Signature Action Button -->
+<button class="w-full bg-primary text-on-primary py-5 rounded-2xl font-headline font-bold text-lg tracking-tight shadow-[0_24px_48px_rgba(0,105,75,0.2)] hover:scale-[1.02] hover:bg-primary-dim active:scale-95 transition-all duration-300 ease-out-expo flex items-center justify-center gap-3">
+            Initialize Profile
+            <span class="material-symbols-outlined" data-icon="arrow_forward">arrow_forward</span>
+</button>
+<!-- Background Decoratives -->
+<div class="fixed top-1/4 -left-20 w-64 h-64 bg-primary-fixed/20 blur-[120px] -z-10 rounded-full"></div>
+<div class="fixed bottom-1/4 -right-20 w-80 h-80 bg-tertiary-fixed/15 blur-[120px] -z-10 rounded-full"></div>
+</main>
+<!-- Bottom Navigation Mockup -->
+<nav class="fixed bottom-0 left-0 right-0 z-50 flex justify-around items-center px-6 pb-8 pt-4 max-w-md mx-auto bg-white/60 dark:bg-slate-900/60 backdrop-blur-3xl rounded-t-[2rem] border-t border-white/15 shadow-[0px_-12px_32px_rgba(0,77,54,0.05)]">
+<div class="flex flex-col items-center justify-center bg-emerald-500 dark:bg-emerald-600 text-white rounded-2xl p-3 shadow-[0_0_15px_rgba(0,105,75,0.4)] transition-transform duration-300 scale-110 cursor-pointer">
+<span class="material-symbols-outlined" data-icon="home_health">home_health</span>
+<span class="text-[10px] font-medium tracking-widest uppercase mt-1">Home</span>
+</div>
+<div class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 p-3 hover:text-emerald-600 hover:scale-105 transition-all duration-300 cursor-pointer">
+<span class="material-symbols-outlined" data-icon="exercise">exercise</span>
+<span class="text-[10px] font-medium tracking-widest uppercase mt-1">Workouts</span>
+</div>
+<div class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 p-3 hover:text-emerald-600 hover:scale-105 transition-all duration-300 cursor-pointer">
+<span class="material-symbols-outlined" data-icon="monitoring">monitoring</span>
+<span class="text-[10px] font-medium tracking-widest uppercase mt-1">Insights</span>
+</div>
+<div class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 p-3 hover:text-emerald-600 hover:scale-105 transition-all duration-300 cursor-pointer">
+<span class="material-symbols-outlined" data-icon="psychology_alt">psychology_alt</span>
+<span class="text-[10px] font-medium tracking-widest uppercase mt-1">Coach</span>
+</div>
+</nav>
+<!-- Floating Branding Glass -->
+<div class="fixed top-8 right-8 hidden lg:block">
+<div class="glass-panel p-6 rounded-2xl border border-white/20 shadow-2xl max-w-xs transition-transform hover:scale-[1.02] duration-300">
+<div class="flex items-center gap-4 mb-4">
+<img alt="Avatar" class="w-12 h-12 rounded-full object-cover border-2 border-primary" data-alt="close-up portrait of a high-tech robotic interface with glowing emerald eyes and translucent glass plating" src="https://lh3.googleusercontent.com/aida-public/AB6AXuADiMQs06xJncLe-gsHKWAK3FPEOkFjfcqfYLXLOfGptudFn-xIefo1ljyHGoyBSWZhnOby1sIS5apjo4KP7UIF6_CcdTns0_b0F180h80U68cf5HSXsHczmbLR7liCHzSz1jdAx4ZUEzVUS6stuqQ5gfqo79Fd0JaDEG0EFi3CF54LrmmhxHaIrdOIEHLQDJFIBcfpENRXUUlhXMkSGSzW8mgo3KFVO5-DtBXNdz8G1XrIqi_Z3LImqO__8hWWksm4kSVKD04s9Ig"/>
+<div>
+<div class="text-xs font-bold text-primary tracking-widest uppercase">System AI</div>
+<div class="text-sm font-bold text-on-surface">Nova Curator</div>
+</div>
+</div>
+<p class="text-xs text-on-surface-variant leading-relaxed">"Your biometric data is being processed through our proprietary NutriScan neural engine to ensure metabolic alignment."</p>
+</div>
+</div>
+</body></html>

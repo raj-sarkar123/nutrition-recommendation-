@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Nova | NutriScan AI Login</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&amp;family=Inter:wght@400;500;600&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "inverse-on-surface": "#9a9d9e",
+                        "inverse-primary": "#8cfece",
+                        "on-tertiary": "#c2fff0",
+                        "on-secondary": "#c3ffed",
+                        "on-error-container": "#570008",
+                        "inverse-surface": "#0b0f10",
+                        "on-secondary-container": "#195c4e",
+                        "on-surface-variant": "#595c5d",
+                        "primary-fixed": "#8cfece",
+                        "on-primary-container": "#006146",
+                        "background": "#f5f7f8",
+                        "secondary-fixed": "#afefdd",
+                        "surface-container-highest": "#d9dddf",
+                        "secondary": "#266658",
+                        "on-tertiary-container": "#006456",
+                        "on-primary": "#c7ffe3",
+                        "surface-container": "#e5e9ea",
+                        "tertiary-fixed": "#a6feea",
+                        "on-tertiary-fixed-variant": "#007060",
+                        "primary-dim": "#005b41",
+                        "secondary-container": "#afefdd",
+                        "error": "#b31b25",
+                        "surface-dim": "#d0d5d7",
+                        "on-secondary-fixed-variant": "#266658",
+                        "surface-container-lowest": "#ffffff",
+                        "outline": "#747778",
+                        "secondary-fixed-dim": "#a1e1cf",
+                        "on-primary-fixed": "#004d36",
+                        "outline-variant": "#abadae",
+                        "on-secondary-fixed": "#00483c",
+                        "surface-container-high": "#dfe3e4",
+                        "surface-variant": "#d9dddf",
+                        "surface-tint": "#00694b",
+                        "primary": "#00694b",
+                        "primary-fixed-dim": "#7defc0",
+                        "tertiary-container": "#a6feea",
+                        "primary-container": "#8cfece",
+                        "surface-bright": "#f5f7f8",
+                        "surface": "#f5f7f8",
+                        "error-container": "#fb5151",
+                        "tertiary": "#006859",
+                        "on-background": "#2c2f30",
+                        "tertiary-fixed-dim": "#98f0dc",
+                        "tertiary-dim": "#005a4e",
+                        "on-primary-fixed-variant": "#006d4e",
+                        "error-dim": "#9f0519",
+                        "on-surface": "#2c2f30",
+                        "secondary-dim": "#16594c",
+                        "on-error": "#ffefee",
+                        "on-tertiary-fixed": "#005045",
+                        "surface-container-low": "#eef1f2"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .ease-out-expo { transition-timing-function: cubic-bezier(0.19, 1, 0.22, 1); }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+        }
+    </style>
+</head>
+<body class="bg-surface font-body text-on-surface min-h-screen flex flex-col items-center justify-center relative overflow-hidden">
+<!-- Signature Mesh Background -->
+<div class="fixed inset-0 z-0 pointer-events-none">
+<div class="absolute top-[-10%] left-[-10%] w-[60%] h-[60%] bg-primary-fixed/20 blur-[120px] rounded-full animate-pulse"></div>
+<div class="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-secondary-container/30 blur-[100px] rounded-full"></div>
+<div class="absolute top-[20%] right-[10%] w-[30%] h-[30%] bg-primary-container/10 blur-[80px] rounded-full"></div>
+</div>
+<!-- Login Container -->
+<main class="w-full max-w-[480px] px-6 relative z-10 flex flex-col items-center">
+<!-- Abstract AI Graphic / Logo -->
+<div class="relative mb-12 w-32 h-32 flex items-center justify-center">
+<div class="absolute inset-0 bg-primary/20 rounded-full blur-2xl animate-pulse"></div>
+<div class="relative w-24 h-24 glass-panel rounded-full flex items-center justify-center outline outline-1 outline-white/30 shadow-2xl">
+<span class="material-symbols-outlined text-primary text-5xl" style="font-variation-settings: 'FILL' 1;">
+                    cognition
+                </span>
+</div>
+<!-- Orbiting Elements -->
+<div class="absolute w-full h-full border border-primary/20 rounded-full scale-125 border-dashed"></div>
+</div>
+<!-- Hero Section -->
+<header class="text-center mb-10">
+<h1 class="font-headline font-extrabold text-[3rem] leading-tight tracking-[-0.04em] text-on-surface mb-2">
+                Your AI, Your <span class="text-primary">Nutrients.</span>
+</h1>
+<p class="font-body text-on-surface-variant text-lg max-w-[320px] mx-auto">
+                Precision nutrition scanning powered by Nova’s clinical intelligence.
+            </p>
+</header>
+<!-- Login Form -->
+<section class="w-full glass-panel rounded-[2rem] p-8 shadow-[0px_24px_48px_rgba(0,77,54,0.08)] outline outline-1 outline-white/15">
+<form class="space-y-6">
+<!-- Email Field -->
+<div class="space-y-2">
+<label class="font-label text-xs font-medium tracking-[0.1em] uppercase text-on-surface-variant ml-1">Email Address</label>
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-0 top-1/2 -translate-y-1/2 text-outline group-focus-within:text-primary transition-colors duration-300">
+                            alternate_email
+                        </span>
+<input class="w-full bg-transparent border-0 border-b border-outline-variant/30 py-3 pl-8 focus:ring-0 focus:border-primary transition-all duration-300 ease-out-expo placeholder:text-outline/50 font-medium" placeholder="name@medical.ai" type="email"/>
+</div>
+</div>
+<!-- Password Field -->
+<div class="space-y-2">
+<div class="flex justify-between items-center ml-1">
+<label class="font-label text-xs font-medium tracking-[0.1em] uppercase text-on-surface-variant">Password</label>
+<a class="text-[10px] text-primary font-bold uppercase tracking-widest hover:underline transition-all" href="#">Forgot?</a>
+</div>
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-0 top-1/2 -translate-y-1/2 text-outline group-focus-within:text-primary transition-colors duration-300">
+                            lock_open
+                        </span>
+<input class="w-full bg-transparent border-0 border-b border-outline-variant/30 py-3 pl-8 focus:ring-0 focus:border-primary transition-all duration-300 ease-out-expo placeholder:text-outline/50 font-medium" placeholder="••••••••" type="password"/>
+<button class="absolute right-0 top-1/2 -translate-y-1/2 text-outline/50 hover:text-primary" type="button">
+<span class="material-symbols-outlined">visibility</span>
+</button>
+</div>
+</div>
+<!-- Sign In Button -->
+<button class="w-full mt-4 bg-primary text-on-primary py-5 rounded-2xl font-headline font-bold text-lg tracking-tight shadow-[0_0_20px_rgba(0,105,75,0.3)] hover:shadow-[0_0_30px_rgba(0,105,75,0.5)] hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 ease-out-expo group flex items-center justify-center gap-2" type="submit">
+                    Sign In
+                    <span class="material-symbols-outlined transition-transform group-hover:translate-x-1">arrow_forward</span>
+</button>
+</form>
+<!-- Social/Alt Login -->
+<div class="mt-8 pt-8 border-t border-outline-variant/10">
+<p class="text-center text-xs text-on-surface-variant mb-6 font-medium tracking-wide">OR CONTINUE WITH</p>
+<div class="grid grid-cols-2 gap-4">
+<button class="flex items-center justify-center gap-2 py-3 px-4 glass-panel outline outline-1 outline-outline-variant/20 rounded-xl hover:bg-white transition-all duration-300 ease-out-expo scale-100 active:scale-95">
+<img alt="" class="w-4 h-4 opacity-70" data-alt="Official Google brand logo icon in high definition minimalist style" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDXUsQCKDZWefHBRXcoySTXUSRLHlKR-jAHDCGbskgSFKyEm5g0gzjHidQ0l1hHgdef-xalfrsHstOEl7scAx3_hScodxio7bqlKlm74XoOXomaCDak-Po0awv6Mjg8uVdUZF4paD-aKcIWQHKSHlkfqqZOqzDUAVa711KZsCnPGHD6OlO1HK9Vgk17wTtAljbCHLKGAPdxG28jjbpTN_AcBIB5z73T1rJYZFkxwXYLCRHlV8Bs8--npXQfx4lLIiypOgTKKk4D6k0"/>
+<span class="text-sm font-semibold tracking-tight">Google</span>
+</button>
+<button class="flex items-center justify-center gap-2 py-3 px-4 glass-panel outline outline-1 outline-outline-variant/20 rounded-xl hover:bg-white transition-all duration-300 ease-out-expo scale-100 active:scale-95">
+<span class="material-symbols-outlined text-lg" style="font-variation-settings: 'FILL' 1;">ios</span>
+<span class="text-sm font-semibold tracking-tight">Apple</span>
+</button>
+</div>
+</div>
+</section>
+<!-- Footer Actions -->
+<footer class="mt-10 text-center pb-12">
+<p class="text-on-surface-variant font-medium">
+                New to the platform? 
+                <a class="text-primary font-bold hover:underline ml-1" href="#">Create Account</a>
+</p>
+<div class="mt-12 flex justify-center gap-6 text-[10px] text-outline uppercase tracking-widest font-bold">
+<a class="hover:text-primary transition-colors" href="#">Privacy</a>
+<a class="hover:text-primary transition-colors" href="#">Terms</a>
+<a class="hover:text-primary transition-colors" href="#">Support</a>
+</div>
+</footer>
+</main>
+<!-- Scan-Line Loader Mock (Decorative) -->
+<div class="fixed top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-primary to-transparent opacity-30 blur-sm"></div>
+</body></html>
