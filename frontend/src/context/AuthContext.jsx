@@ -56,10 +56,13 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('nutriscan_user');
   };
 
-  const updateUser = (updatedUser) => {
-    setUser(prev => ({ ...prev, ...updatedUser }));
-    localStorage.setItem('nutriscan_user', JSON.stringify({ ...user, ...updatedUser }));
-  };
+ const updateUser = (updatedUser) => {
+  setUser(prev => {
+    const updated = { ...prev, ...updatedUser };
+    localStorage.setItem('nutriscan_user', JSON.stringify(updated));
+    return updated;
+  });
+};
 
   return (
     <AuthContext.Provider value={{ user, token, loading, login, signup, logout, updateUser }}>

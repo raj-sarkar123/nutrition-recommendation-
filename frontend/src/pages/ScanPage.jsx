@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 import { useScan } from '../context/ScanContext';
 
-
 // Stage labels shown in sequence during a real scan
 const STAGES = [
   { pct: 5,  label: 'Uploading image…' },
@@ -32,20 +31,24 @@ export default function ScanPage() {
     setCurrentScan,
   } = useScan();
 
-  // Local UI state — does not need to persist across tabs
   const [file, setFile]       = useState(null);
   const [preview, setPreview] = useState(null);
 
-  const fileInputRef = useRef(null);
-  const navigate     = useNavigate();
+  // Two separate inputs:
+  //   cameraInputRef  — has capture="environment", opens rear camera on mobile
+  //   fileInputRef    — normal file picker (gallery / desktop)
+  const cameraInputRef = useRef(null);
+  const fileInputRef   = useRef(null);
+  const navigate       = useNavigate();
 
-  const handleFileSelect = (e) => {
-    const selected = e.target.files[0];
-    if (selected) {
-      setFile(selected);
-      setPreview(URL.createObjectURL(selected));
-    }
+  const applyFile = (selected) => {
+    if (!selected) return;
+    setFile(selected);
+    setPreview(URL.createObjectURL(selected));
   };
+
+  const handleCameraCapture = (e) => applyFile(e.target.files?.[0]);
+  const handleFileSelect    = (e) => applyFile(e.target.files?.[0]);
 
   const handleScan = async () => {
     if (!file) return;
@@ -59,7 +62,6 @@ export default function ScanPage() {
       }
     };
 
-    // Ticker saturates at 90% — last 10% comes from server response
     let current = 0;
     const ticker = setInterval(() => {
       current = Math.min(current + (Math.random() * 4 + 1), 90);
@@ -78,10 +80,7 @@ export default function ScanPage() {
       clearInterval(ticker);
       setScanProgress(100);
       setScanStage('Analysis complete!');
-
-      // Persist to context + localStorage history
       completeScan(data);
-
       setTimeout(() => navigate('/analysis'), 600);
     } catch (err) {
       clearInterval(ticker);
@@ -96,6 +95,25 @@ export default function ScanPage() {
 
   return (
     <div className="space-y-8 pb-32">
+      {/* Hidden inputs */}
+      {/* Camera input — capture="environment" opens rear camera on iOS/Android */}
+      <input
+        ref={cameraInputRef}
+        type="file"
+        accept="image/*"
+        capture="environment"
+        className="hidden"
+        onChange={handleCameraCapture}
+      />
+      {/* File input — gallery / desktop file picker, no capture constraint */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*,.pdf"
+        className="hidden"
+        onChange={handleFileSelect}
+      />
+
       {/* Hero */}
       <section className="mb-8">
         <h1 className="text-[3.5rem] font-headline font-bold leading-tight tracking-[-0.04em] text-on-surface">
@@ -118,7 +136,7 @@ export default function ScanPage() {
             </div>
           )}
 
-          {/* Real scanning overlay */}
+          {/* Scanning overlay */}
           {isScanning && (
             <>
               <div className="absolute inset-0 bg-black/25 backdrop-blur-[1px] z-10" />
@@ -153,27 +171,39 @@ export default function ScanPage() {
           )}
         </div>
 
-        {/* Upload zone */}
-        <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 w-4/5 glass-panel p-4 rounded-2xl shadow-[0px_24px_48px_rgba(0,77,54,0.15)] border border-primary/20 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-primary-container flex items-center justify-center text-on-primary-container">
+        {/* Upload zone — now has two action buttons */}
+        <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 w-4/5 glass-panel p-4 rounded-2xl shadow-[0px_24px_48px_rgba(0,77,54,0.15)] border border-primary/20 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3 flex-1 min-w-0">
+            <div className="w-10 h-10 rounded-xl bg-primary-container flex items-center justify-center text-on-primary-container shrink-0">
               <span className="material-symbols-outlined">upload_file</span>
             </div>
-            <div>
-              <p className="text-sm font-bold font-headline">{file ? file.name : 'Import Menu'}</p>
+            <div className="min-w-0">
+              <p className="text-sm font-bold font-headline truncate">{file ? file.name : 'Import Menu'}</p>
               <p className="text-[10px] text-on-surface-variant font-medium">
                 {file ? `${(file.size / 1024 / 1024).toFixed(1)} MB` : 'PDF, JPG, PNG up to 10 MB'}
               </p>
             </div>
           </div>
+
+          {/* Camera button — opens rear camera */}
+          <button
+            onClick={() => cameraInputRef.current?.click()}
+            disabled={isScanning}
+            aria-label="Open camera"
+            className="bg-primary/10 text-primary p-2.5 rounded-xl hover:bg-primary/20 hover:scale-110 active:scale-95 transition-all ease-out-expo disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
+          >
+            <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>photo_camera</span>
+          </button>
+
+          {/* File / gallery button */}
           <button
             onClick={() => fileInputRef.current?.click()}
             disabled={isScanning}
-            className="bg-primary text-white p-2.5 rounded-xl hover:scale-110 active:scale-95 transition-transform ease-out-expo disabled:opacity-50 disabled:cursor-not-allowed"
+            aria-label="Upload from gallery or files"
+            className="bg-primary text-white p-2.5 rounded-xl hover:scale-110 active:scale-95 transition-transform ease-out-expo disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
           >
             <span className="material-symbols-outlined">add</span>
           </button>
-          <input ref={fileInputRef} type="file" accept="image/*,.pdf" onChange={handleFileSelect} className="hidden" />
         </div>
       </section>
 
@@ -247,7 +277,7 @@ export default function ScanPage() {
         )}
       </section>
 
-      {/* View last result — prominent card */}
+      {/* View last result */}
       {currentScan && !isScanning && (() => {
         const items = currentScan.extracted_items || currentScan.results || [];
         const savedAt = currentScan.savedAt
@@ -273,7 +303,6 @@ export default function ScanPage() {
                 </div>
               </div>
 
-              {/* Mini preview of top items */}
               {items.length > 0 && (
                 <div className="flex gap-1.5 flex-wrap mb-4">
                   {items.slice(0, 4).map((it, i) => {
@@ -305,7 +334,7 @@ export default function ScanPage() {
         );
       })()}
 
-      {/* Scan History — always visible when entries exist */}
+      {/* Scan History */}
       {history.length > 0 && !isScanning && (
         <section className="space-y-3">
           <div className="flex items-center justify-between px-1">

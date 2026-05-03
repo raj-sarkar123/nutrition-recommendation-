@@ -1,17 +1,36 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import api from "../api/axios";
 import NovaButton from "../components/ui/NovaButton";
 import NovaInput from "../components/ui/NovaInput";
+import PrivacyModal from "../components/ui/PrivacyModal";
 
-
+/* ─────────────────────────────────────────────────────────────
+   CONSTANTS & HELPERS
+───────────────────────────────────────────────────────────── */
 const GOAL_OPTIONS = [
   { value: "lose", label: "Lose Weight", icon: "trending_down" },
   { value: "maintain", label: "Maintain", icon: "balance" },
   { value: "gain", label: "Gain Muscle", icon: "trending_up" },
 ];
 
+function profileToForm(data) {
+  return {
+    full_name: data.full_name ?? "",
+    current_weight: data.profile?.current_weight ?? "",
+    target_weight: data.profile?.target_weight ?? "",
+    goal: data.profile?.goal || "maintain",
+    daily_calorie_target: data.profile?.daily_calorie_target ?? "",
+    protein_target: data.profile?.protein_target ?? "",
+    carbs_target: data.profile?.carbs_target ?? "",
+    fats_target: data.profile?.fats_target ?? "",
+  };
+}
+
+/* ─────────────────────────────────────────────────────────────
+   PROFILE PAGE
+───────────────────────────────────────────────────────────── */
 export default function ProfilePage() {
   const { user, logout, updateUser } = useAuth();
   const navigate = useNavigate();
@@ -22,42 +41,45 @@ export default function ProfilePage() {
   const [saving, setSaving] = useState(false);
   const [toast, setToast] = useState("");
   const [toastType, setToastType] = useState("success");
+  const [showPrivacyModal, setShowPrivacyModal] = useState(false);
   const [darkMode, setDarkMode] = useState(() =>
     document.documentElement.classList.contains("dark"),
   );
+  const [form, setForm] = useState(profileToForm({ profile: {} }));
 
-  // Edit form state
-  const [form, setForm] = useState({
-    full_name: "",
-    current_weight: "",
-    target_weight: "",
-    goal: "",
-    daily_calorie_target: "",
-    protein_target: "",
-    carbs_target: "",
-    fats_target: "",
-  });
+  // Avatar upload state
+  const [avatarUploading, setAvatarUploading] = useState(false);
+  const [avatarRemoving, setAvatarRemoving] = useState(false);
+  // FIX #1: Track the blob URL separately so we can revoke it on cleanup
+  const avatarBlobUrlRef = useRef(null);
+  // Holds the avatar URL at the moment deletion starts so the image
+  // stays visible for the full fade-out transition before state clears.
+  const frozenAvatarRef = useRef(null);
+  const [avatarPreview, setAvatarPreview] = useState(null);
+  const fileInputRef = useRef(null);
+  const [showAvatarOptions, setShowAvatarOptions] = useState(false);
+  const [showImagePreview, setShowImagePreview] = useState(false);
+
+  const setField = (key) => (e) =>
+    setForm((p) => ({ ...p, [key]: e.target.value }));
 
   useEffect(() => {
     fetchProfile();
+    // FIX #2: Revoke any lingering blob URL on unmount
+    return () => {
+      if (avatarBlobUrlRef.current) {
+        URL.revokeObjectURL(avatarBlobUrlRef.current);
+      }
+    };
   }, []);
 
   const fetchProfile = async () => {
     try {
       const { data } = await api.get("/users/profile");
       setProfile(data);
-      setForm({
-        full_name: data.full_name || "",
-        current_weight: data.profile?.current_weight ?? "",
-        target_weight: data.profile?.target_weight ?? "",
-        goal: data.profile?.goal || "maintain",
-        daily_calorie_target: data.profile?.daily_calorie_target ?? "",
-        protein_target: data.profile?.protein_target ?? "",
-        carbs_target: data.profile?.carbs_target ?? "",
-        fats_target: data.profile?.fats_target ?? "",
-      });
+      setForm(profileToForm(data));
     } catch {
-      // keep defaults
+      /* keep defaults */
     } finally {
       setLoaded(true);
     }
@@ -69,6 +91,94 @@ export default function ProfilePage() {
     setTimeout(() => setToast(""), 2800);
   };
 
+  /* ── Revoke current blob URL helper ── */
+  const revokeBlobUrl = () => {
+    if (avatarBlobUrlRef.current) {
+      URL.revokeObjectURL(avatarBlobUrlRef.current);
+      avatarBlobUrlRef.current = null;
+    }
+  };
+
+  /* ── Avatar upload ── */
+  const handleAvatarClick = () => setShowAvatarOptions(true);
+
+  const handleRemoveAvatar = async () => {
+    // Snapshot current avatar so the frozen ref keeps the <img> src stable
+    // during the CSS transition regardless of when the API responds.
+    frozenAvatarRef.current = resolvedAvatar;
+
+    // 1. Close sheet + start fade-out immediately
+    setShowAvatarOptions(false);
+    setAvatarRemoving(true);
+
+    // 2. Run the CSS transition (300 ms) and the API call in parallel.
+    //    We deliberately clear local state after the transition so the
+    //    image never disappears before the animation finishes.
+    const [apiResult] = await Promise.allSettled([
+      api.delete("/users/avatar"),
+      new Promise((r) => setTimeout(r, 320)), // matches transition-duration
+    ]);
+
+    // 3. Transition is done — clear avatar data first so the initials div
+    //    renders into the DOM while the container is still invisible (opacity 0).
+    updateUser({ avatar_url: null });
+    setProfile((p) => ({ ...p, avatar_url: null }));
+    revokeBlobUrl();
+    setAvatarPreview(null);
+    frozenAvatarRef.current = null;
+
+    // 4. One rAF later the initials are painted; now fade the circle back in.
+    requestAnimationFrame(() => {
+      setAvatarRemoving(false);
+    });
+
+    if (apiResult.status === "rejected") {
+      showToast("Failed to remove photo", "error");
+    } else {
+      showToast("Photo removed");
+    }
+  };
+
+  const handleAvatarChange = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // FIX #4: Revoke any previous blob URL before creating a new one
+    revokeBlobUrl();
+    const objectUrl = URL.createObjectURL(file);
+    avatarBlobUrlRef.current = objectUrl;
+    setAvatarPreview(objectUrl);
+
+    setAvatarUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append("avatar", file);
+
+      const { data } = await api.post("/users/avatar", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
+      updateUser({ avatar_url: data.avatar_url });
+      setProfile((prev) => ({ ...prev, avatar_url: data.avatar_url }));
+
+      // FIX #5: Revoke the blob URL now that the server URL is available,
+      // and clear the preview so resolvedAvatar falls through to the server URL.
+      revokeBlobUrl();
+      setAvatarPreview(null);
+
+      showToast("Profile photo updated");
+    } catch {
+      // FIX #6: Revoke blob URL on failure path too, then clear the preview
+      revokeBlobUrl();
+      setAvatarPreview(null);
+      showToast("Failed to upload photo", "error");
+    } finally {
+      setAvatarUploading(false);
+      e.target.value = "";
+    }
+  };
+
+  /* ── Single save handler covering all fields ── */
   const handleSave = async () => {
     setSaving(true);
     try {
@@ -97,30 +207,42 @@ export default function ProfilePage() {
           form.fats_target !== "" ? parseInt(form.fats_target) : undefined,
       });
 
-      // Sync name change into AuthContext + localStorage
       if (form.full_name && form.full_name !== user?.full_name) {
         updateUser({ full_name: form.full_name });
       }
 
-      // Optimistically update local profile state
       setProfile((prev) => ({
         ...prev,
         full_name: form.full_name || prev.full_name,
         profile: {
           ...prev.profile,
+          // FIX #7: Use ?? instead of || so that numeric 0 is treated as a
+          // valid value rather than falling back to the previous value.
           current_weight:
-            parseFloat(form.current_weight) || prev.profile?.current_weight,
+            form.current_weight !== ""
+              ? parseFloat(form.current_weight)
+              : prev.profile?.current_weight,
           target_weight:
-            parseFloat(form.target_weight) || prev.profile?.target_weight,
-          goal: form.goal || prev.profile?.goal,
+            form.target_weight !== ""
+              ? parseFloat(form.target_weight)
+              : prev.profile?.target_weight,
+          goal: form.goal ?? prev.profile?.goal,
           daily_calorie_target:
-            parseInt(form.daily_calorie_target) ||
-            prev.profile?.daily_calorie_target,
+            form.daily_calorie_target !== ""
+              ? parseInt(form.daily_calorie_target)
+              : prev.profile?.daily_calorie_target,
           protein_target:
-            parseInt(form.protein_target) || prev.profile?.protein_target,
+            form.protein_target !== ""
+              ? parseInt(form.protein_target)
+              : prev.profile?.protein_target,
           carbs_target:
-            parseInt(form.carbs_target) || prev.profile?.carbs_target,
-          fats_target: parseInt(form.fats_target) || prev.profile?.fats_target,
+            form.carbs_target !== ""
+              ? parseInt(form.carbs_target)
+              : prev.profile?.carbs_target,
+          fats_target:
+            form.fats_target !== ""
+              ? parseInt(form.fats_target)
+              : prev.profile?.fats_target,
         },
       }));
 
@@ -131,6 +253,17 @@ export default function ProfilePage() {
     } finally {
       setSaving(false);
     }
+  };
+
+  /* ── Cancel — restore all fields to last saved ── */
+  const handleCancel = () => {
+    // FIX #8: Use functional form of setProfile to guarantee we read the
+    // latest profile state, not a potentially-stale closure value.
+    setProfile((prev) => {
+      if (prev) setForm(profileToForm(prev));
+      return prev;
+    });
+    setEditing(false);
   };
 
   const handleDarkMode = () => {
@@ -156,6 +289,10 @@ export default function ProfilePage() {
     GOAL_OPTIONS.find((g) => g.value === (profile?.profile?.goal || form.goal))
       ?.label || "—";
 
+  // Resolved avatar: prefer live upload preview → saved URL → null (shows initials)
+  const resolvedAvatar =
+    avatarPreview || profile?.avatar_url || user?.avatar_url || null;
+
   if (!loaded) {
     return (
       <div className="flex items-center justify-center h-[60vh]">
@@ -168,61 +305,197 @@ export default function ProfilePage() {
 
   return (
     <div className="space-y-6 pb-24">
+      {showAvatarOptions && (
+        <div
+          className="fixed inset-0 z-[9999] bg-black/40"
+          onClick={() => setShowAvatarOptions(false)}
+        >
+          <div
+            // FIX #9: Use theme-aware background instead of hardcoded bg-white
+            className="absolute bottom-0 w-full max-w-md left-1/2 -translate-x-1/2 bg-surface-container-lowest dark:bg-surface-container rounded-t-3xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Profile preview */}
+            {resolvedAvatar && (
+              <div className="flex justify-center py-6 border-b border-surface-variant/20">
+                <img
+                  src={resolvedAvatar}
+                  alt="Profile"
+                  className="w-24 h-24 rounded-full object-cover"
+                />
+              </div>
+            )}
+
+            {/* Actions */}
+            {/* FIX #10: Use theme-aware divider and text colors */}
+            <div className="divide-y divide-surface-variant/20 text-center">
+              {resolvedAvatar && (
+                <button
+                  onClick={() => {
+                    setShowAvatarOptions(false);
+                    setShowImagePreview(true);
+                  }}
+                  className="w-full py-4 text-sm font-medium text-on-surface"
+                >
+                  View Photo
+                </button>
+              )}
+
+              <button
+                onClick={() => {
+                  // FIX #11: Trigger the file input BEFORE closing the sheet
+                  // to avoid the click being swallowed on some browsers.
+                  fileInputRef.current?.click();
+                  setShowAvatarOptions(false);
+                }}
+                className="w-full py-4 text-sm font-semibold text-primary"
+              >
+                Upload New Photo
+              </button>
+
+              {resolvedAvatar && (
+                <button
+                  onClick={handleRemoveAvatar}
+                  className="w-full py-4 text-sm font-semibold text-red-500"
+                >
+                  Remove Photo
+                </button>
+              )}
+
+              <button
+                onClick={() => setShowAvatarOptions(false)}
+                className="w-full py-4 text-sm text-on-surface"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showImagePreview && (
+        <div
+          className="fixed inset-0 z-[10000] bg-black flex items-center justify-center"
+          onClick={() => setShowImagePreview(false)}
+        >
+          <img
+            onClick={(e) => e.stopPropagation()}
+            src={resolvedAvatar}
+            alt="Profile"
+            className="max-w-full max-h-full object-contain"
+          />
+          <button
+            className="absolute top-5 right-5 text-white"
+            onClick={() => setShowImagePreview(false)}
+            aria-label="Close photo preview"
+          >
+            <span className="material-symbols-outlined text-2xl">close</span>
+          </button>
+        </div>
+      )}
+
+      <PrivacyModal
+        open={showPrivacyModal}
+        onClose={() => setShowPrivacyModal(false)}
+      />
+
+      {/* Hidden file input for avatar upload */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={handleAvatarChange}
+        aria-label="Upload profile photo"
+      />
+
       {/* Toast */}
       {toast && (
         <div
-          className={`fixed top-20 left-1/2 -translate-x-1/2 z-50 px-5 py-3 rounded-2xl shadow-xl font-semibold text-sm text-white transition-all ${toastType === "error" ? "bg-error" : "bg-primary"}`}
+          className={`fixed top-20 left-1/2 -translate-x-1/2 z-[9998] px-5 py-3 rounded-2xl shadow-xl font-semibold text-sm text-white transition-all ${
+            toastType === "error" ? "bg-error" : "bg-primary"
+          }`}
+          style={{ whiteSpace: "nowrap" }}
         >
           {toast}
         </div>
       )}
 
-      {/* Profile Header */}
+      {/* ────────────── Profile Header ────────────── */}
       <section className="relative">
         <div className="h-24 rounded-t-[1.5rem] bg-gradient-to-r from-primary to-primary-fixed" />
         <div className="bg-surface-container-lowest/60 backdrop-blur-2xl rounded-b-[1.5rem] px-6 pb-6 outline outline-1 outline-white/20 nova-shadow text-center">
+          {/* ── Tappable avatar with upload overlay ── */}
           <div className="relative -mt-12 mb-3 inline-block">
-            <div className="w-24 h-24 rounded-full p-1 bg-gradient-to-tr from-primary to-primary-fixed shadow-xl">
-              {user?.avatar_url ? (
-                <img
-                  src={user.avatar_url}
-                  alt="Profile"
-                  className="w-full h-full object-cover rounded-full border-4 border-white"
-                />
-              ) : (
-                <div className="w-full h-full rounded-full border-4 border-white bg-primary-container flex items-center justify-center text-primary text-2xl font-headline font-bold">
-                  {initials}
-                </div>
-              )}
-            </div>
-            <div className="absolute bottom-1 right-1 w-5 h-5 bg-primary border-[3px] border-white rounded-full" />
+            <button
+              onClick={handleAvatarClick}
+              disabled={avatarUploading || avatarRemoving}
+              aria-label="Change profile photo"
+              className="group relative block rounded-full focus:outline-none focus:ring-2 focus:ring-primary/50"
+            >
+              {/* Avatar image / initials — fades + shrinks when removing */}
+              <div
+                className="w-24 h-24 rounded-full overflow-hidden shadow-xl border-4 border-white transition-all duration-300"
+                style={{
+                  opacity: avatarRemoving ? 0 : 1,
+                  transform: avatarRemoving ? "scale(0.85)" : "scale(1)",
+                }}
+              >
+                {(avatarRemoving ? frozenAvatarRef.current : resolvedAvatar) ? (
+                  <img
+                    src={avatarRemoving ? frozenAvatarRef.current : resolvedAvatar}
+                    alt="Profile"
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full bg-primary-container flex items-center justify-center text-primary text-2xl font-headline font-bold">
+                    {initials}
+                  </div>
+                )}
+              </div>
+
+              {/* Camera overlay — hidden at rest, revealed on hover/press or while uploading */}
+              <div
+                className={`absolute inset-0 flex items-center justify-center rounded-full transition-all duration-200 ${
+                  avatarUploading
+                    ? "bg-black/40 opacity-100"
+                    : "bg-black/30 opacity-0 group-hover:opacity-100 group-active:opacity-100"
+                }`}
+              >
+                {avatarUploading ? (
+                  <span className="material-symbols-outlined text-white text-xl animate-spin">
+                    progress_activity
+                  </span>
+                ) : (
+                  <span
+                    className="material-symbols-outlined text-white"
+                    style={{ fontSize: 22, fontVariationSettings: "'FILL' 1" }}
+                  >
+                    photo_camera
+                  </span>
+                )}
+              </div>
+            </button>
+
+            {/* Online dot — fades out with the avatar */}
+            <div
+              className="absolute bottom-1 right-1 w-5 h-5 bg-primary border-[3px] border-white rounded-full pointer-events-none transition-opacity duration-300"
+              style={{ opacity: avatarRemoving ? 0 : 1 }}
+            />
           </div>
 
-          {editing ? (
-            <div className="mb-3 max-w-[220px] mx-auto">
-              <NovaInput
-                value={form.full_name}
-                onChange={(e) =>
-                  setForm((p) => ({ ...p, full_name: e.target.value }))
-                }
-                placeholder="Your name"
-              />
-            </div>
-          ) : (
-            <>
-              <h1 className="text-2xl font-headline font-bold tracking-tight text-on-surface">
-                {displayName}
-              </h1>
-              <p className="text-on-surface-variant font-medium text-sm">
-                {profile?.email || user?.email}
-              </p>
-            </>
-          )}
+          {/* Name */}
+          <h1 className="text-2xl font-headline font-bold tracking-tight text-on-surface">
+            {displayName}
+          </h1>
+          <p className="text-on-surface-variant font-medium text-sm mt-0.5">
+            {profile?.email || user?.email}
+          </p>
 
           <div className="mt-3 inline-flex items-center gap-2 bg-secondary-container px-4 py-1.5 rounded-full">
             <span
-              className="material-symbols-outlined text-[16px] text-on-secondary-container"
-              style={{ fontVariationSettings: "'FILL' 1" }}
+              className="material-symbols-outlined text-on-secondary-container"
+              style={{ fontSize: 16, fontVariationSettings: "'FILL' 1" }}
             >
               verified
             </span>
@@ -230,50 +503,10 @@ export default function ProfilePage() {
               NutriScan Elite
             </span>
           </div>
-
-          {/* Edit / Save toggle */}
-          <div className="mt-4 flex gap-2 justify-center">
-            {editing ? (
-              <>
-                <button
-                  onClick={handleSave}
-                  disabled={saving}
-                  className="px-5 py-2 bg-primary text-white rounded-xl text-sm font-bold flex items-center gap-1.5 active:scale-95 transition-all disabled:opacity-60"
-                >
-                  {saving ? (
-                    <span className="material-symbols-outlined text-base animate-spin">
-                      progress_activity
-                    </span>
-                  ) : (
-                    <span className="material-symbols-outlined text-base">
-                      check
-                    </span>
-                  )}
-                  {saving ? "Saving…" : "Save changes"}
-                </button>
-                <button
-                  onClick={() => setEditing(false)}
-                  className="px-5 py-2 bg-surface-container text-on-surface rounded-xl text-sm font-semibold active:scale-95 transition-all"
-                >
-                  Cancel
-                </button>
-              </>
-            ) : (
-              <button
-                onClick={() => setEditing(true)}
-                className="px-5 py-2 bg-surface-container text-on-surface rounded-xl text-sm font-semibold flex items-center gap-1.5 active:scale-95 transition-all hover:bg-surface-container-high"
-              >
-                <span className="material-symbols-outlined text-base">
-                  edit
-                </span>
-                Edit profile
-              </button>
-            )}
-          </div>
         </div>
       </section>
 
-      {/* Stats / Edit Grid */}
+      {/* ────────────── Body Stats ────────────── */}
       <section className="space-y-3">
         <h2 className="text-xs font-bold tracking-widest uppercase text-on-surface-variant px-1">
           Body Stats
@@ -281,15 +514,20 @@ export default function ProfilePage() {
 
         {editing ? (
           <div className="glass-panel rounded-2xl p-5 outline outline-1 outline-white/20 space-y-5">
+            <NovaInput
+              label="Display name"
+              value={form.full_name}
+              onChange={setField("full_name")}
+              placeholder="Your name"
+              autoFocus
+            />
             <div className="grid grid-cols-2 gap-5">
               <NovaInput
                 label="Current weight"
                 type="number"
                 unit="kg"
                 value={form.current_weight}
-                onChange={(e) =>
-                  setForm((p) => ({ ...p, current_weight: e.target.value }))
-                }
+                onChange={setField("current_weight")}
                 placeholder="64.2"
               />
               <NovaInput
@@ -297,14 +535,10 @@ export default function ProfilePage() {
                 type="number"
                 unit="kg"
                 value={form.target_weight}
-                onChange={(e) =>
-                  setForm((p) => ({ ...p, target_weight: e.target.value }))
-                }
+                onChange={setField("target_weight")}
                 placeholder="62.0"
               />
             </div>
-
-            {/* Goal selector */}
             <div className="space-y-2">
               <p className="text-xs font-bold tracking-widest uppercase text-on-surface-variant">
                 Goal
@@ -337,7 +571,7 @@ export default function ProfilePage() {
                   Current Weight
                 </p>
                 <p className="text-3xl font-headline font-bold text-primary tracking-tighter">
-                  {profile?.profile?.current_weight || "—"}
+                  {profile?.profile?.current_weight ?? "—"}
                   <span className="text-lg font-medium opacity-60"> kg</span>
                 </p>
               </div>
@@ -346,7 +580,7 @@ export default function ProfilePage() {
                   Target
                 </p>
                 <p className="text-xl font-headline font-bold text-on-surface">
-                  {profile?.profile?.target_weight || "—"} kg
+                  {profile?.profile?.target_weight ?? "—"} kg
                 </p>
               </div>
             </div>
@@ -375,7 +609,7 @@ export default function ProfilePage() {
                 Daily Target
               </p>
               <p className="text-lg font-headline font-bold text-on-surface">
-                {profile?.profile?.daily_calorie_target || "—"}
+                {profile?.profile?.daily_calorie_target ?? "—"}
                 <span className="text-sm font-medium opacity-60"> kcal</span>
               </p>
             </div>
@@ -383,27 +617,19 @@ export default function ProfilePage() {
         )}
       </section>
 
-      {/* Macro Targets */}
+      {/* ────────────── Macro Targets ────────────── */}
       <section className="space-y-3">
         <h2 className="text-xs font-bold tracking-widest uppercase text-on-surface-variant px-1">
           Macro Targets
         </h2>
 
         {editing ? (
-          <div className="glass-panel rounded-2xl p-5 outline outline-1 outline-white/20">
+          <div className="glass-panel rounded-2xl p-5 outline outline-1 outline-white/20 space-y-4">
             <div className="grid grid-cols-3 gap-4">
               {[
-                {
-                  key: "protein_target",
-                  label: "Protein",
-                  color: "text-emerald-600",
-                },
-                {
-                  key: "carbs_target",
-                  label: "Carbs",
-                  color: "text-amber-600",
-                },
-                { key: "fats_target", label: "Fats", color: "text-rose-500" },
+                { key: "protein_target", label: "Protein" },
+                { key: "carbs_target", label: "Carbs" },
+                { key: "fats_target", label: "Fats" },
               ].map((m) => (
                 <NovaInput
                   key={m.key}
@@ -411,28 +637,19 @@ export default function ProfilePage() {
                   type="number"
                   unit="g"
                   value={form[m.key]}
-                  onChange={(e) =>
-                    setForm((p) => ({ ...p, [m.key]: e.target.value }))
-                  }
+                  onChange={setField(m.key)}
                   placeholder="—"
                 />
               ))}
             </div>
-            <div className="mt-4">
-              <NovaInput
-                label="Daily calorie target"
-                type="number"
-                unit="kcal"
-                value={form.daily_calorie_target}
-                onChange={(e) =>
-                  setForm((p) => ({
-                    ...p,
-                    daily_calorie_target: e.target.value,
-                  }))
-                }
-                placeholder="2200"
-              />
-            </div>
+            <NovaInput
+              label="Daily calorie target"
+              type="number"
+              unit="kcal"
+              value={form.daily_calorie_target}
+              onChange={setField("daily_calorie_target")}
+              placeholder="2200"
+            />
           </div>
         ) : (
           <div className="glass-panel rounded-2xl p-5 outline outline-1 outline-white/20 space-y-4">
@@ -440,19 +657,16 @@ export default function ProfilePage() {
               {
                 label: "Protein",
                 value: profile?.profile?.protein_target,
-                total: profile?.profile?.daily_calorie_target,
                 color: "bg-emerald-500",
               },
               {
                 label: "Carbs",
                 value: profile?.profile?.carbs_target,
-                total: profile?.profile?.daily_calorie_target,
                 color: "bg-amber-400",
               },
               {
                 label: "Fats",
                 value: profile?.profile?.fats_target,
-                total: profile?.profile?.daily_calorie_target,
                 color: "bg-rose-400",
               },
             ].map((m) => (
@@ -471,7 +685,7 @@ export default function ProfilePage() {
                   />
                 </div>
                 <span className="text-sm font-bold text-on-surface w-14 text-right">
-                  {m.value ? `${m.value}g` : "—"}
+                  {m.value != null ? `${m.value}g` : "—"}
                 </span>
               </div>
             ))}
@@ -479,14 +693,73 @@ export default function ProfilePage() {
         )}
       </section>
 
-      {/* Settings */}
+      {/* ────────────── Save / Cancel bar (edit mode only) ────────────── */}
+      {editing && (
+        <div className="flex gap-3">
+          <button
+            onClick={handleSave}
+            disabled={saving}
+            className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-2xl bg-primary text-white font-semibold text-sm hover:opacity-90 active:scale-[0.98] disabled:opacity-50 transition-all duration-150"
+          >
+            {saving ? (
+              <span className="material-symbols-outlined text-base animate-spin">
+                progress_activity
+              </span>
+            ) : (
+              <span className="material-symbols-outlined text-base">
+                check_circle
+              </span>
+            )}
+            {saving ? "Saving…" : "Save Changes"}
+          </button>
+          <button
+            onClick={handleCancel}
+            disabled={saving}
+            className="px-6 py-3.5 rounded-2xl bg-surface-container text-on-surface-variant font-semibold text-sm hover:bg-surface-container-high active:scale-[0.98] disabled:opacity-50 transition-all duration-150"
+          >
+            Cancel
+          </button>
+        </div>
+      )}
+
+      {/* ────────────── Preferences ────────────── */}
       <section className="space-y-3">
         <h2 className="text-xs font-bold tracking-widest uppercase text-on-surface-variant px-1">
           Preferences
         </h2>
         <div className="bg-surface-container-low rounded-2xl overflow-hidden divide-y divide-surface-variant/20">
-          {/* Dark Mode — wired */}
+          {/* Edit Profile */}
+          {!editing && (
+            <div
+              onClick={() => setEditing(true)}
+              className="flex items-center justify-between p-4 hover:bg-surface-container transition-colors cursor-pointer group"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
+                  <span className="material-symbols-outlined text-base">
+                    manage_accounts
+                  </span>
+                </div>
+                <div>
+                  <span className="font-medium text-sm block">
+                    Edit Profile
+                  </span>
+                  <span className="text-[11px] text-on-surface-variant">
+                    Name, weight, goals &amp; macros
+                  </span>
+                </div>
+              </div>
+              <span className="material-symbols-outlined text-on-surface-variant group-hover:translate-x-1 transition-transform">
+                chevron_right
+              </span>
+            </div>
+          )}
+
+          {/* Dark Mode */}
           <div
+            role="switch"
+            aria-checked={darkMode}
+            aria-label="Toggle dark mode"
             onClick={handleDarkMode}
             className="flex items-center justify-between p-4 hover:bg-surface-container transition-colors cursor-pointer group"
           >
@@ -498,50 +771,58 @@ export default function ProfilePage() {
               </div>
               <span className="font-medium text-sm">Dark Mode</span>
             </div>
-            {/* Toggle pill */}
             <div
-              className={`w-11 h-6 rounded-full relative transition-colors duration-300 ${darkMode ? "bg-primary" : "bg-surface-container-high"}`}
+              className={`w-11 h-6 rounded-full relative transition-colors duration-300 ${
+                darkMode ? "bg-primary" : "bg-surface-container-high"
+              }`}
             >
               <div
-                className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-all duration-300 ${darkMode ? "left-6" : "left-1"}`}
+                className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-all duration-300 ${
+                  darkMode ? "left-6" : "left-1"
+                }`}
               />
             </div>
           </div>
 
-          {[
-            {
-              icon: "shield_person",
-              label: "Privacy & Data",
-              onClick: () => {},
-            },
-            {
-              icon: "notifications_active",
-              label: "Smart Insights",
-              onClick: () => navigate("/insights"),
-            },
-          ].map((item) => (
-            <div
-              key={item.label}
-              onClick={item.onClick}
-              className="flex items-center justify-between p-4 hover:bg-surface-container transition-colors cursor-pointer group"
-            >
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-secondary-container/50 flex items-center justify-center text-secondary group-hover:scale-110 transition-transform">
-                  <span className="material-symbols-outlined text-base">
-                    {item.icon}
-                  </span>
-                </div>
-                <span className="font-medium text-sm">{item.label}</span>
+          {/* Privacy & Data — opens portal modal */}
+          <div
+            onClick={() => setShowPrivacyModal(true)}
+            className="flex items-center justify-between p-4 hover:bg-surface-container transition-colors cursor-pointer group"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-secondary-container/50 flex items-center justify-center text-secondary group-hover:scale-110 transition-transform">
+                <span className="material-symbols-outlined text-base">
+                  shield_person
+                </span>
               </div>
-              <span className="material-symbols-outlined text-on-surface-variant group-hover:translate-x-1 transition-transform">
-                chevron_right
-              </span>
+              <span className="font-medium text-sm">Privacy &amp; Data</span>
             </div>
-          ))}
+            <span className="material-symbols-outlined text-on-surface-variant group-hover:translate-x-1 transition-transform">
+              chevron_right
+            </span>
+          </div>
+
+          {/* Smart Insights */}
+          <div
+            onClick={() => navigate("/insights")}
+            className="flex items-center justify-between p-4 hover:bg-surface-container transition-colors cursor-pointer group"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-secondary-container/50 flex items-center justify-center text-secondary group-hover:scale-110 transition-transform">
+                <span className="material-symbols-outlined text-base">
+                  notifications_active
+                </span>
+              </div>
+              <span className="font-medium text-sm">Smart Insights</span>
+            </div>
+            <span className="material-symbols-outlined text-on-surface-variant group-hover:translate-x-1 transition-transform">
+              chevron_right
+            </span>
+          </div>
         </div>
       </section>
 
-      {/* Logout */}
+      {/* ────────────── Logout ────────────── */}
       <section className="pt-2 space-y-4">
         <NovaButton variant="error" onClick={handleLogout}>
           <span className="material-symbols-outlined">logout</span>

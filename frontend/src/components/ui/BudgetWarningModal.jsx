@@ -80,7 +80,7 @@ export default function BudgetWarningModal({ foodName, overAmount, onConfirm, on
                   className="py-3 rounded-xl bg-error text-white font-bold text-sm flex items-center justify-center gap-2 shadow-lg hover:shadow-error/30 hover:scale-[1.02] active:scale-95 transition-all duration-200"
                 >
                   <span className="material-symbols-outlined text-base">
-                    add_circle
+                  add_circle
                   </span>
                   Confirm
                 </button>
