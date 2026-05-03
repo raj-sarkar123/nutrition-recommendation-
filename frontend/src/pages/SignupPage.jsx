@@ -21,7 +21,8 @@ export default function SignupPage() {
       await signup(form.full_name, form.email, form.password);
       navigate('/onboarding');
     } catch (err) {
-      setError(err.response?.data?.error || 'Signup failed. Please try again.');
+      const apiError = err.response?.data?.error;
+      setError(typeof apiError === 'string' ? apiError : apiError?.message || 'Signup failed. Please try again.');
     } finally {
       setLoading(false);
     }

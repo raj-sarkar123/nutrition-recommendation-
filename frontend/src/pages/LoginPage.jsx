@@ -20,7 +20,8 @@ export default function LoginPage() {
       const data = await login(form.email, form.password);
       navigate(data.onboarding_completed ? '/dashboard' : '/onboarding');
     } catch (err) {
-      setError(err.response?.data?.error || 'Login failed. Please try again.');
+      const apiError = err.response?.data?.error;
+      setError(typeof apiError === 'string' ? apiError : apiError?.message || 'Login failed. Please try again.');
     } finally {
       setLoading(false);
     }
