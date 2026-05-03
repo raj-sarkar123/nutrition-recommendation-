@@ -32,7 +32,7 @@ exports.signup = async (req, res) => {
 
     const password_hash = await bcrypt.hash(password, 12);
 
-    if (supabase) {
+    if (supabaseAdmin) {
       // Check if user exists
       const { data: existing } = await supabaseAdmin  
         .from('users')
@@ -103,7 +103,7 @@ exports.login = async (req, res) => {
 
     let user;
 
-    if (supabase) {
+    if (supabaseAdmin) {
       const { data, error } = await supabaseAdmin  
         .from('users')
         .select('*')
@@ -129,7 +129,7 @@ exports.login = async (req, res) => {
 
     // Check onboarding status
     let onboardingCompleted = false;
-    if (supabase) {
+    if (supabaseAdmin) {
       const { data: profile } = await supabaseAdmin  
         .from('user_profiles')
         .select('onboarding_completed')
