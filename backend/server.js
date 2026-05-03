@@ -1,63 +1,125 @@
-const express = require('express');
-const cors = require('cors');
-const path = require('path');
+// const express = require('express');
+// const cors = require('cors');
+// const path = require('path');
+// require('dotenv').config();
+
+// const app = express();
+// const PORT = process.env.PORT || 5000;
+
+// // Middleware
+// const allowedOrigins = process.env.FRONTEND_URL 
+//   ? process.env.FRONTEND_URL.split(',').map(url => url.trim().replace(/\/$/, ''))
+//   : ['http://localhost:5173'];
+
+// app.use(cors({
+//   origin: function(origin, callback) {
+//     if (!origin) return callback(null, true);
+//     const requestOrigin = origin.replace(/\/$/, '');
+//     if (allowedOrigins.includes(requestOrigin) || allowedOrigins.includes('*')) {
+//       callback(null, true);
+//     } else {
+//       callback(new Error('Not allowed by CORS'));
+//     }
+//   },
+//   credentials: true
+// }));
+// app.use(express.json());
+// app.use(express.urlencoded({ extended: true }));
+
+// // Serve uploaded files
+// app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+// // Routes
+// app.use('/api/auth', require('./routes/auth.routes'));
+// app.use('/api/users', require('./routes/user.routes'));
+// app.use('/api/meals', require('./routes/meal.routes'));
+// app.use('/api/scans', require('./routes/scan.routes'));
+// app.use('/api/progress', require('./routes/progress.routes'));
+
+// // Health check
+// app.get('/api/health', (req, res) => {
+//   res.json({ status: 'ok', message: 'NutriScan AI Backend is running', timestamp: new Date().toISOString() });
+// });
+
+// // Error handling middleware
+// app.use((err, req, res, next) => {
+//   console.error('Server error:', err);
+//   if (err.code === 'LIMIT_FILE_SIZE') {
+//     return res.status(413).json({ error: 'File too large. Maximum size is 10MB.' });
+//   }
+//   res.status(500).json({ error: 'Internal server error.' });
+// });
+
+// app.listen(PORT, () => {
+//   console.log(`
+//   ╔══════════════════════════════════════════════╗
+//   ║   🧬 NutriScan AI Backend                    ║
+//   ║   Running on http://localhost:${PORT}          ║
+//   ║   Mode: ${process.env.NODE_ENV || 'development'}                       ║
+//   ╚══════════════════════════════════════════════╝
+//   `);
+// });
+
+// module.exports = app;
+
+
+
+
+
+// ✅ Load env FIRST
 require('dotenv').config();
+
+const express = require('express');
+const corsMiddleware = require('./middleware/cors'); // your custom cors
+const path = require('path');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Middleware
-const allowedOrigins = process.env.FRONTEND_URL 
-  ? process.env.FRONTEND_URL.split(',').map(url => url.trim().replace(/\/$/, ''))
-  : ['http://localhost:5173'];
+// ✅ CORS (before everything)
+app.use(corsMiddleware);
 
-app.use(cors({
-  origin: function(origin, callback) {
-    if (!origin) return callback(null, true);
-    const requestOrigin = origin.replace(/\/$/, '');
-    if (allowedOrigins.includes(requestOrigin) || allowedOrigins.includes('*')) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  credentials: true
-}));
+// ✅ Body parsers
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Serve uploaded files
+// ✅ Static files
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// Routes
+// ✅ Routes
 app.use('/api/auth', require('./routes/auth.routes'));
 app.use('/api/users', require('./routes/user.routes'));
 app.use('/api/meals', require('./routes/meal.routes'));
 app.use('/api/scans', require('./routes/scan.routes'));
 app.use('/api/progress', require('./routes/progress.routes'));
 
-// Health check
+// ✅ Health check
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', message: 'NutriScan AI Backend is running', timestamp: new Date().toISOString() });
+  res.json({
+    status: 'ok',
+    message: 'NutriScan AI Backend is running',
+    timestamp: new Date().toISOString(),
+  });
 });
 
-// Error handling middleware
+// ✅ Error handler
 app.use((err, req, res, next) => {
   console.error('Server error:', err);
+
   if (err.code === 'LIMIT_FILE_SIZE') {
-    return res.status(413).json({ error: 'File too large. Maximum size is 10MB.' });
+    return res.status(413).json({ error: 'File too large. Max 10MB.' });
   }
-  res.status(500).json({ error: 'Internal server error.' });
+
+  if (err.message === 'Not allowed by CORS') {
+    return res.status(403).json({ error: 'CORS blocked request' });
+  }
+
+  res.status(500).json({ error: 'Internal server error' });
 });
 
+// ✅ Start server
 app.listen(PORT, () => {
-  console.log(`
-  ╔══════════════════════════════════════════════╗
-  ║   🧬 NutriScan AI Backend                    ║
-  ║   Running on http://localhost:${PORT}          ║
-  ║   Mode: ${process.env.NODE_ENV || 'development'}                       ║
-  ╚══════════════════════════════════════════════╝
-  `);
+  console.log(`🚀 Server running on port ${PORT}`);
 });
 
 module.exports = app;

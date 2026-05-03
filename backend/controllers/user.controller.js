@@ -1,7 +1,5 @@
 const { supabaseAdmin: supabase } = require('../config/supabase');
 
-// ─── existing controllers (unchanged) ────────────────────────────────────────
-
 exports.getProfile = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -62,22 +60,28 @@ exports.updateProfile = async (req, res) => {
     } = req.body;
 
     if (supabase) {
-      if (full_name || avatar_url) {
-        const userUpdates = {};
-        if (full_name)   userUpdates.full_name   = full_name;
-        if (avatar_url)  userUpdates.avatar_url  = avatar_url;
-        userUpdates.updated_at = new Date().toISOString();
-        await supabase.from('users').update(userUpdates).eq('id', userId);
+      // Update users table if any user-level field was supplied.
+      // avatar_url: null is intentionally allowed here so callers can clear it
+      // (though the dedicated DELETE /avatar route is preferred for that).
+      const userFields = {};
+      if (full_name   !== undefined) userFields.full_name  = full_name;
+      if (avatar_url  !== undefined) userFields.avatar_url = avatar_url;
+
+      if (Object.keys(userFields).length > 0) {
+        userFields.updated_at = new Date().toISOString();
+        await supabase.from('users').update(userFields).eq('id', userId);
       }
 
+      // FIX: use !== undefined instead of truthy checks so that numeric 0
+      // and empty strings are still written to the DB rather than silently skipped.
       const profileUpdates = { updated_at: new Date().toISOString() };
       if (current_weight       !== undefined) profileUpdates.current_weight       = current_weight;
       if (target_weight        !== undefined) profileUpdates.target_weight        = target_weight;
-      if (goal)                               profileUpdates.goal                 = goal;
-      if (daily_calorie_target)               profileUpdates.daily_calorie_target = daily_calorie_target;
-      if (protein_target)                     profileUpdates.protein_target       = protein_target;
-      if (carbs_target)                       profileUpdates.carbs_target         = carbs_target;
-      if (fats_target)                        profileUpdates.fats_target          = fats_target;
+      if (goal                 !== undefined) profileUpdates.goal                 = goal;
+      if (daily_calorie_target !== undefined) profileUpdates.daily_calorie_target = daily_calorie_target;
+      if (protein_target       !== undefined) profileUpdates.protein_target       = protein_target;
+      if (carbs_target         !== undefined) profileUpdates.carbs_target         = carbs_target;
+      if (fats_target          !== undefined) profileUpdates.fats_target          = fats_target;
 
       await supabase.from('user_profiles').update(profileUpdates).eq('user_id', userId);
 
@@ -129,19 +133,6 @@ exports.saveOnboarding = async (req, res) => {
   }
 };
 
-// ─── NEW: uploadAvatar ────────────────────────────────────────────────────────
-//
-// Receives a multipart/form-data request with field "avatar" (handled by
-// multer memoryStorage in upload.js middleware, applied in user.routes.js).
-//
-// Flow:
-//   1. Validate file present
-//   2. Upload buffer to Supabase Storage bucket "avatars" at path "{userId}"
-//      (upsert: true so re-uploads overwrite the old file — no stale URLs)
-//   3. Get the public URL from Supabase
-//   4. Write avatar_url back to users table
-//   5. Return { avatar_url } to frontend
-//
 exports.uploadAvatar = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -152,8 +143,6 @@ exports.uploadAvatar = async (req, res) => {
 
     const { buffer, mimetype, originalname } = req.file;
     const ext = originalname.split('.').pop() || mimetype.split('/')[1] || 'jpg';
-
-    // Better path structure
     const storagePath = `${userId}/avatar.${ext}`;
 
     const { error: uploadError } = await supabase.storage
@@ -161,7 +150,7 @@ exports.uploadAvatar = async (req, res) => {
       .upload(storagePath, buffer, {
         contentType: mimetype,
         upsert: true,
-        cacheControl: '0', // 👈 disable caching
+        cacheControl: '0',
       });
 
     if (uploadError) {
@@ -173,7 +162,6 @@ exports.uploadAvatar = async (req, res) => {
       .from('avatars')
       .getPublicUrl(storagePath);
 
-    // 🔥 CRITICAL: cache busting
     const avatar_url = `${data.publicUrl}?t=${Date.now()}`;
 
     await supabase
@@ -182,17 +170,16 @@ exports.uploadAvatar = async (req, res) => {
       .eq('id', userId);
 
     return res.json({ avatar_url });
-
   } catch (error) {
     console.error(error);
     return res.status(500).json({ error: 'Failed to upload avatar' });
   }
 };
+
 exports.removeAvatar = async (req, res) => {
   try {
     const userId = req.user.id;
 
-    // 1. Get current avatar URL from DB
     const { data: user, error: fetchError } = await supabase
       .from('users')
       .select('avatar_url')
@@ -202,26 +189,19 @@ exports.removeAvatar = async (req, res) => {
     if (fetchError) throw fetchError;
 
     if (user?.avatar_url) {
-      // 2. Extract file path from URL
-      // Example URL:
-      // https://xxxx.supabase.co/storage/v1/object/public/avatars/userId/avatar.jpg?t=123
-
-      const url = user.avatar_url.split('?')[0]; // remove cache param
-      const path = url.split('/avatars/')[1]; // get "userId/avatar.jpg"
-
+      const url = user.avatar_url.split('?')[0];
+      const path = url.split('/avatars/')[1];
       if (path) {
         await supabase.storage.from('avatars').remove([path]);
       }
     }
 
-    // 3. Remove from DB
     await supabase
       .from('users')
       .update({ avatar_url: null, updated_at: new Date().toISOString() })
       .eq('id', userId);
 
     return res.json({ success: true });
-
   } catch (error) {
     console.error('Remove avatar error:', error);
     return res.status(500).json({ error: 'Failed to remove avatar' });

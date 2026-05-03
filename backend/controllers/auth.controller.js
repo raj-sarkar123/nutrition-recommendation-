@@ -1,11 +1,27 @@
+// dotenv MUST be loaded before any process.env reads.
+// In production the platform injects vars directly into the environment,
+// so dotenv is a no-op there — but the order still prevents local breakage.
+require('dotenv').config();
+
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { supabase, supabaseAdmin } = require('../config/supabase');
 console.log('supabase:', !!supabase, '| supabaseAdmin:', !!supabaseAdmin);
-require('dotenv').config();
 
-const JWT_SECRET = process.env.JWT_SECRET || 'nutriscan-ai-dev-secret';
+const JWT_SECRET = process.env.JWT_SECRET;
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '7d';
+
+// Fail fast on startup if JWT_SECRET is missing in production.
+// A missing secret means every token will be signed with undefined, which
+// jwt.sign() converts to the string "undefined" — silently broken in prod.
+if (!JWT_SECRET) {
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error('FATAL: JWT_SECRET environment variable is not set.');
+  }
+  console.warn('[auth] JWT_SECRET not set — using insecure dev fallback.');
+}
+
+const EFFECTIVE_SECRET = JWT_SECRET || 'nutriscan-ai-dev-secret';
 
 // Demo users storage (when Supabase is not configured)
 const demoUsers = [];
@@ -13,7 +29,7 @@ const demoUsers = [];
 const generateToken = (user) => {
   return jwt.sign(
     { id: user.id, email: user.email, full_name: user.full_name },
-    JWT_SECRET,
+    EFFECTIVE_SECRET,
     { expiresIn: JWT_EXPIRES_IN }
   );
 };
@@ -33,8 +49,7 @@ exports.signup = async (req, res) => {
     const password_hash = await bcrypt.hash(password, 12);
 
     if (supabaseAdmin) {
-      // Check if user exists
-      const { data: existing } = await supabaseAdmin  
+      const { data: existing } = await supabaseAdmin
         .from('users')
         .select('id')
         .eq('email', email)
@@ -44,7 +59,6 @@ exports.signup = async (req, res) => {
         return res.status(409).json({ error: 'An account with this email already exists.' });
       }
 
-      // Create user
       const { data: user, error } = await supabaseAdmin
         .from('users')
         .insert({ full_name, email, password_hash })
@@ -53,7 +67,6 @@ exports.signup = async (req, res) => {
 
       if (error) throw error;
 
-      // Create empty profile
       await supabaseAdmin
         .from('user_profiles')
         .insert({ user_id: user.id });
@@ -65,7 +78,6 @@ exports.signup = async (req, res) => {
         user: { id: user.id, full_name: user.full_name, email: user.email }
       });
     } else {
-      // Demo mode
       const exists = demoUsers.find(u => u.email === email);
       if (exists) {
         return res.status(409).json({ error: 'An account with this email already exists.' });
@@ -104,7 +116,7 @@ exports.login = async (req, res) => {
     let user;
 
     if (supabaseAdmin) {
-      const { data, error } = await supabaseAdmin  
+      const { data, error } = await supabaseAdmin
         .from('users')
         .select('*')
         .eq('email', email)
@@ -115,7 +127,6 @@ exports.login = async (req, res) => {
       }
       user = data;
     } else {
-      // Demo mode
       user = demoUsers.find(u => u.email === email);
       if (!user) {
         return res.status(401).json({ error: 'Invalid email or password.' });
@@ -127,10 +138,9 @@ exports.login = async (req, res) => {
       return res.status(401).json({ error: 'Invalid email or password.' });
     }
 
-    // Check onboarding status
     let onboardingCompleted = false;
     if (supabaseAdmin) {
-      const { data: profile } = await supabaseAdmin  
+      const { data: profile } = await supabaseAdmin
         .from('user_profiles')
         .select('onboarding_completed')
         .eq('user_id', user.id)
