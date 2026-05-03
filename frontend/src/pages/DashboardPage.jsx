@@ -26,9 +26,17 @@ export default function DashboardPage() {
     }
   };
 
-  const rawRemaining = (targets?.daily_calorie_target || 2200) - (progress?.total_calories || 0);
-  const remaining = Math.max(rawRemaining, 0);
-
+  // const rawRemaining = (targets?.daily_calorie_target || 2200) - (progress?.total_calories || 0);
+  // const remaining = Math.max(rawRemaining, 0);
+const totalCals = progress?.total_calories || 0;
+  const targetCals = targets?.daily_calorie_target || 2200;
+  
+  const rawRemaining = targetCals - totalCals;
+  const isOverBudget = rawRemaining < 0;
+  const displayAmount = Math.abs(rawRemaining);
+  
+  // Cap the value at the max target so the ProgressRing doesn't break visually
+  const cappedValue = Math.min(totalCals, targetCals);
   return (
     <div className="space-y-8">
       {/* Hero: Calorie Ring */}
@@ -45,30 +53,37 @@ export default function DashboardPage() {
             </div>
           ) : (
             <>
+              {/* If your ProgressRing component supports a color prop, you can pass it here. 
+                  Otherwise, we pass the capped value so the ring stays at 100% full visually. */}
               <ProgressRing
-                value={progress?.total_calories || 0}
-                max={targets?.daily_calorie_target || 2200}
-                label={remaining.toLocaleString()}
-                sublabel="kcal left"
+                value={cappedValue}
+                max={targetCals}
+                label={displayAmount.toLocaleString()}
+                sublabel={isOverBudget ? "KCAL OVER" : "kcal left"}
               />
+              
               <div className="mt-6 text-center">
-                <h2 className="font-headline text-xl font-bold tracking-tight text-on-surface">
-                  {remaining > (targets?.daily_calorie_target || 2200) * 0.7
-                    ? 'Ready to Fuel Up'
-                    : remaining > (targets?.daily_calorie_target || 2200) * 0.3
-                      ? 'On Track'
-                      : remaining > 0
-                        ? 'Almost There'
-                        : 'Goal Reached'}
+                <h2 className={`font-headline text-xl font-bold tracking-tight ${isOverBudget ? 'text-red-500' : 'text-on-surface'}`}>
+                  {isOverBudget 
+                    ? 'Over Budget'
+                    : rawRemaining > targetCals * 0.7
+                      ? 'Ready to Fuel Up'
+                      : rawRemaining > targetCals * 0.3
+                        ? 'On Track'
+                        : rawRemaining > 0
+                          ? 'Almost There'
+                          : 'Goal Reached'}
                 </h2>
-                <p className="text-on-surface-variant text-sm mt-1">
-                  {remaining > (targets?.daily_calorie_target || 2200) * 0.7
-                    ? "You haven't logged much yet — time to start your day strong."
-                    : remaining > (targets?.daily_calorie_target || 2200) * 0.3
-                      ? `${Math.round(((progress?.total_calories || 0) / (targets?.daily_calorie_target || 2200)) * 100)}% consumed — great pacing so far.`
-                      : remaining > 0
-                        ? `Only ${remaining.toLocaleString()} kcal left — finish with a light, high-protein meal.`
-                        : 'Daily calorie target met. Focus on hydration and recovery.'}
+                <p className={`text-sm mt-1 ${isOverBudget ? 'text-red-500/80 font-medium' : 'text-on-surface-variant'}`}>
+                  {isOverBudget
+                    ? `You are ${displayAmount.toLocaleString()} kcal over your daily target.`
+                    : rawRemaining > targetCals * 0.7
+                      ? "You haven't logged much yet — time to start your day strong."
+                      : rawRemaining > targetCals * 0.3
+                        ? `${Math.round((totalCals / targetCals) * 100)}% consumed — great pacing so far.`
+                        : rawRemaining > 0
+                          ? `Only ${displayAmount.toLocaleString()} kcal left — finish with a light, high-protein meal.`
+                          : 'Daily calorie target met. Focus on hydration and recovery.'}
                 </p>
               </div>
             </>
@@ -89,9 +104,10 @@ export default function DashboardPage() {
                 ? 'No meals logged yet today. Scan a menu or add a meal to get personalised insights.'
                 : (progress?.total_protein || 0) < (targets?.protein_target || 120) * 0.5
                   ? `Protein is at ${Math.round(progress?.total_protein || 0)}g — well below your ${targets?.protein_target || 120}g target. Prioritise lean protein in your next meal.`
-                  : remaining > 0 && remaining < (targets?.daily_calorie_target || 2200) * 0.3
-                    ? `${remaining.toLocaleString()} kcal remaining. Opt for fibre-rich, low-calorie options to finish strong.`
-                    : `You've consumed ${Math.round(((progress?.total_calories || 0) / (targets?.daily_calorie_target || 2200)) * 100)}% of your daily calories with ${Math.round(progress?.total_protein || 0)}g protein. ${remaining > 0 ? 'Keep it balanced.' : 'Consider stopping for today.'}`}
+                  // AFTER (fixed — use rawRemaining / displayAmount)
+: rawRemaining > 0 && rawRemaining < (targets?.daily_calorie_target || 2200) * 0.3
+  ? `${displayAmount.toLocaleString()} kcal remaining. Opt for fibre-rich, low-calorie options to finish strong.`
+  : `You've consumed ${Math.round(((progress?.total_calories || 0) / (targets?.daily_calorie_target || 2200)) * 100)}% of your daily calories with ${Math.round(progress?.total_protein || 0)}g protein. ${rawRemaining > 0 ? 'Keep it balanced.' : 'Consider stopping for today.'}`}
             </p>
           </div>
         </div>
@@ -103,8 +119,8 @@ export default function DashboardPage() {
           onClick={() => navigate('/scan')}
           className="glass-panel p-6 rounded-xl outline outline-1 outline-white/20 shadow-[0px_12px_24px_rgba(0,77,54,0.04)] flex flex-col items-start gap-4 group hover:bg-white hover:scale-105 hover:shadow-[0px_20px_40px_rgba(0,77,54,0.1)] transition-all duration-300 ease-out-expo active:scale-95"
         >
-          <div className="w-12 h-12 rounded-xl bg-primary-container flex items-center justify-center text-primary group-hover:scale-110 group-hover:bg-primary group-hover:text-white transition-all duration-300">
-            <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>restaurant_menu</span>
+          <div className="w-12 h-12 rounded-xl bg-secondary-container flex items-center justify-center text-primary group-hover:scale-110 group-hover:bg-primary group-hover:text-white transition-all duration-300">
+            <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>add_a_photo</span>
           </div>
           <div>
             <span className="font-headline font-bold text-on-surface block">Scan Menu</span>
@@ -116,7 +132,7 @@ export default function DashboardPage() {
           className="glass-panel p-6 rounded-xl outline outline-1 outline-white/20 shadow-[0px_12px_24px_rgba(0,77,54,0.04)] flex flex-col items-start gap-4 group hover:bg-white hover:scale-105 hover:shadow-[0px_20px_40px_rgba(0,77,54,0.1)] transition-all duration-300 ease-out-expo active:scale-95"
         >
           <div className="w-12 h-12 rounded-xl bg-secondary-container flex items-center justify-center text-secondary group-hover:scale-110 group-hover:bg-secondary group-hover:text-white transition-all duration-300">
-            <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>add_a_photo</span>
+            <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>restaurant</span>
           </div>
           <div>
             <span className="font-headline font-bold text-on-surface block">Track Meal</span>

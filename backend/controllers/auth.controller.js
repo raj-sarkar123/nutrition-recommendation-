@@ -1,6 +1,7 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { supabase, supabaseAdmin } = require('../config/supabase');
+console.log('supabase:', !!supabase, '| supabaseAdmin:', !!supabaseAdmin);
 require('dotenv').config();
 
 const JWT_SECRET = process.env.JWT_SECRET || 'nutriscan-ai-dev-secret';
@@ -33,7 +34,7 @@ exports.signup = async (req, res) => {
 
     if (supabase) {
       // Check if user exists
-      const { data: existing } = await supabase
+      const { data: existing } = await supabaseAdmin  
         .from('users')
         .select('id')
         .eq('email', email)
@@ -103,7 +104,7 @@ exports.login = async (req, res) => {
     let user;
 
     if (supabase) {
-      const { data, error } = await supabase
+      const { data, error } = await supabaseAdmin  
         .from('users')
         .select('*')
         .eq('email', email)
@@ -129,7 +130,7 @@ exports.login = async (req, res) => {
     // Check onboarding status
     let onboardingCompleted = false;
     if (supabase) {
-      const { data: profile } = await supabase
+      const { data: profile } = await supabaseAdmin  
         .from('user_profiles')
         .select('onboarding_completed')
         .eq('user_id', user.id)

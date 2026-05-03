@@ -84,7 +84,7 @@ async function syncDailyProgress(userId, date) {
       .from('user_profiles')
       .select('daily_calorie_target')
       .eq('user_id', userId)
-      .single();
+      .maybeSingle();
 
     const target  = profile?.daily_calorie_target || 2200;
     const goalMet =

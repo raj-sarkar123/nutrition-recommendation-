@@ -11,6 +11,7 @@ import AnalysisPage from './pages/AnalysisPage';
 import TrackerPage from './pages/TrackerPage';
 import ProgressPage from './pages/ProgressPage';
 import ProfilePage from './pages/ProfilePage';
+import SmartInsightsPage from './pages/SmartInsightsPage';
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
@@ -72,6 +73,7 @@ function App() {
               <Route path="/tracker"   element={<TrackerPage />} />
               <Route path="/progress"  element={<ProgressPage />} />
               <Route path="/profile"   element={<ProfilePage />} />
+              <Route path="/insights" element={<SmartInsightsPage />} />
             </Route>
 
             <Route path="*" element={<Navigate to="/login" replace />} />

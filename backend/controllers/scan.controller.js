@@ -7,18 +7,18 @@ const { parseGeminiResponse } = require('../services/parser.service');
 const { generateHash, getCache, setCache } = require('../services/cache.service');
 
 // Helper — build a user-scoped Supabase client that respects RLS
-const getUserClient = (req) =>
-  createClient(
-    process.env.SUPABASE_URL,
-    process.env.SUPABASE_ANON_KEY,
-    {
-      global: {
-        headers: {
-          Authorization: `Bearer ${req.headers.authorization?.split(' ')[1]}`,
-        },
-      },
-    }
-  );
+// const getUserClient = (req) =>
+//   createClient(
+//     process.env.SUPABASE_URL,
+//     process.env.SUPABASE_ANON_KEY,
+//     {
+//       global: {
+//         headers: {
+//           Authorization: `Bearer ${req.headers.authorization?.split(' ')[1]}`,
+//         },
+//       },
+//     }
+//   );
 
 // ── Upload & Analyse ──────────────────────────────────────────────────────────
 exports.uploadAndAnalyze = async (req, res) => {
@@ -128,14 +128,9 @@ exports.uploadAndAnalyze = async (req, res) => {
 // ── History ───────────────────────────────────────────────────────────────────
 exports.getScanHistory = async (req, res) => {
   try {
-    if (!req.user?.id) {
-      return res.json({ history: [] });
-    }
+    if (!req.user?.id) return res.json({ history: [] });
 
-    // User-scoped client — RLS ensures only their rows are returned
-    const userSupabase = getUserClient(req);
-
-    const { data, error } = await userSupabase
+    const { data, error } = await supabaseAdmin  // ← was getUserClient(req)
       .from('scan_history')
       .select('*')
       .eq('user_id', req.user.id)
@@ -143,7 +138,6 @@ exports.getScanHistory = async (req, res) => {
       .limit(50);
 
     if (error) throw error;
-
     return res.json({ history: data || [] });
   } catch (err) {
     console.error('Scan history error:', err);
@@ -155,25 +149,18 @@ exports.getScanHistory = async (req, res) => {
 exports.getScanResult = async (req, res) => {
   try {
     const { scanId } = req.params;
-    if (!req.user?.id) {
-      return res.status(401).json({ error: 'Unauthorized.' });
-    }
+    if (!req.user?.id) return res.status(401).json({ error: 'Unauthorized.' });
 
-    // User-scoped client — RLS enforces ownership on both tables
-    const userSupabase = getUserClient(req);
-
-    const { data: scan, error: scanErr } = await userSupabase
+    const { data: scan, error: scanErr } = await supabaseAdmin  // ← was getUserClient
       .from('menu_scans')
       .select('id, status, created_at, image_url')
       .eq('id', scanId)
-      .eq('user_id', req.user.id)
+      .eq('user_id', req.user.id)  // still manually enforce ownership
       .single();
 
-    if (scanErr || !scan) {
-      return res.status(404).json({ error: 'Scan not found.' });
-    }
+    if (scanErr || !scan) return res.status(404).json({ error: 'Scan not found.' });
 
-    const { data: results } = await userSupabase
+    const { data: results } = await supabaseAdmin  // ← was getUserClient
       .from('scan_results')
       .select('*')
       .eq('scan_id', scanId)
