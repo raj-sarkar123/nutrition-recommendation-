@@ -116,7 +116,7 @@ export default function ScanPage() {
 
       {/* Hero */}
       <section className="mb-8">
-        <h1 className="text-[3.5rem] font-headline font-bold leading-tight tracking-[-0.04em] text-on-surface">
+        <h1 className="text-[2.8rem] sm:text-[3.5rem] font-headline font-bold leading-tight tracking-[-0.04em] text-on-surface">
           NutriScan <span className="text-primary">AI</span>
         </h1>
         <p className="text-on-surface-variant font-medium mt-2">
@@ -399,7 +399,7 @@ export default function ScanPage() {
         </section>
       )}
 
-      <div className="fixed inset-0 -z-10 pointer-events-none opacity-20">
+      <div className="fixed inset-0 -z-10 pointer-events-none opacity-20 overflow-hidden">
         <div className="absolute top-1/4 -left-20 w-80 h-80 bg-primary-fixed blur-[120px] rounded-full" />
         <div className="absolute bottom-1/4 -right-20 w-80 h-80 bg-tertiary-fixed blur-[120px] rounded-full" />
       </div>

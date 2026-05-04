@@ -36,7 +36,7 @@ export default function AppLayout() {
   }, [location.pathname]);
 
   return (
-    <div className="mesh-bg min-h-screen pb-[100px]">
+    <div className="mesh-bg min-h-screen pb-[100px] overflow-x-hidden">
       <TopNav />
       <main
         ref={mainRef}
