@@ -46,13 +46,12 @@ const corsMiddleware = cors({
     if (!origin || allowedOrigins.includes(origin)) {
       return callback(null, true);
     }
-    // Allow all Vercel preview deployments for your project
+    // Allow all Vercel preview deployments
     if (origin.endsWith('.vercel.app')) {
       return callback(null, true);
     }
     console.warn(`[CORS] Blocked request from origin: ${origin}`);
     callback(new Error(`Origin ${origin} is not allowed by CORS policy.`));
-  
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
