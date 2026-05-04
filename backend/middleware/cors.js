@@ -43,13 +43,16 @@ if (process.env.NODE_ENV === 'production' && productionOrigins.length === 0) {
 
 const corsMiddleware = cors({
   origin: (origin, callback) => {
-    // Allow server-to-server requests (no Origin header) and allowed origins
     if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      console.warn(`[CORS] Blocked request from origin: ${origin}`);
-      callback(new Error(`Origin ${origin} is not allowed by CORS policy.`));
+      return callback(null, true);
     }
+    // Allow all Vercel preview deployments for your project
+    if (origin.endsWith('.vercel.app')) {
+      return callback(null, true);
+    }
+    console.warn(`[CORS] Blocked request from origin: ${origin}`);
+    callback(new Error(`Origin ${origin} is not allowed by CORS policy.`));
+  
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
