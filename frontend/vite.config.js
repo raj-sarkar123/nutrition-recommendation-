@@ -19,30 +19,47 @@ export default defineConfig({
   build: {
     rollupOptions: {
       output: {
-        manualChunks: {
-          // Core React — loaded once, cached forever
-          'vendor-react': ['react', 'react-dom', 'react-router-dom'],
-          // Pages grouped by usage pattern
-          'pages-auth': [
-            './src/pages/LoginPage',
-            './src/pages/SignupPage',
-            './src/pages/OnboardingPage',
-          ],
-          'pages-app': [
-            './src/pages/DashboardPage',
-            './src/pages/TrackerPage',
-            './src/pages/ProgressPage',
-            './src/pages/ProfilePage',
-          ],
-          'pages-scan': [
-            './src/pages/ScanPage',
-            './src/pages/AnalysisPage',
-            './src/pages/SmartInsightsPage',
-          ],
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            if (
+              id.includes('react') ||
+              id.includes('react-dom') ||
+              id.includes('react-router-dom')
+            ) {
+              return 'vendor-react';
+            }
+            return 'vendor';
+          }
+
+          if (id.includes('/src/pages/')) {
+            if (
+              id.includes('LoginPage') ||
+              id.includes('SignupPage') ||
+              id.includes('OnboardingPage')
+            ) {
+              return 'pages-auth';
+            }
+
+            if (
+              id.includes('DashboardPage') ||
+              id.includes('TrackerPage') ||
+              id.includes('ProgressPage') ||
+              id.includes('ProfilePage')
+            ) {
+              return 'pages-app';
+            }
+
+            if (
+              id.includes('ScanPage') ||
+              id.includes('AnalysisPage') ||
+              id.includes('SmartInsightsPage')
+            ) {
+              return 'pages-scan';
+            }
+          }
         }
       }
     },
-    // Warn if any chunk exceeds 500kb
     chunkSizeWarningLimit: 500,
   }
 })
