@@ -145,4 +145,6 @@ export const useScan = () => {
   return ctx;
 };
 
+export { ScanContext };   // ← named export so AuthContext can import it
+
 export default ScanContext;

@@ -83,11 +83,6 @@ export default function ProgressPage() {
   const [targets,   setTargets]   = useState({ protein_target: 120, carbs_target: 200, fats_target: 65 });
   const [loaded,    setLoaded]    = useState(false);
 
-  useEffect(() => {
-    Promise.all([fetchWeekly(), fetchStreak(), fetchDaily()])
-      .finally(() => setLoaded(true));
-  }, []);
-
   const fetchWeekly = async () => {
     try {
       const { data } = await api.get('/progress/weekly');
@@ -122,6 +117,11 @@ export default function ProgressPage() {
       setTargets(t);
     } catch { /* keep defaults */ }
   };
+
+  useEffect(() => {
+    Promise.all([fetchWeekly(), fetchStreak(), fetchDaily()])
+      .finally(() => setLoaded(true));
+  }, []);
 
   const maxCalories    = Math.max(...weekly.map(d => d.calories), 1);
   const percentage     = Math.min(Math.round((dailyGoal.calories / dailyGoal.target) * 100), 100);

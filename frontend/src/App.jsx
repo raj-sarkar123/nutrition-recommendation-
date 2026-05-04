@@ -4,16 +4,42 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import { ScanProvider } from './context/ScanContext';
 import AppLayout from './components/layout/AppLayout';
 
-// Lazy load all pages — each becomes a separate chunk
-const LoginPage        = lazy(() => import('./pages/LoginPage'));
-const SignupPage       = lazy(() => import('./pages/SignupPage'));
-const OnboardingPage   = lazy(() => import('./pages/OnboardingPage'));
-const DashboardPage    = lazy(() => import('./pages/DashboardPage'));
-const ScanPage         = lazy(() => import('./pages/ScanPage'));
-const AnalysisPage     = lazy(() => import('./pages/AnalysisPage'));
-const TrackerPage      = lazy(() => import('./pages/TrackerPage'));
-const ProgressPage     = lazy(() => import('./pages/ProgressPage'));
-const ProfilePage      = lazy(() => import('./pages/ProfilePage'));
+/*
+  FIX: Context ordering.
+
+  BEFORE (broken):
+    <ScanProvider>          ← outer
+      <AuthProvider>        ← inner, calls useScan() internally
+        ...
+      </AuthProvider>
+    </ScanProvider>
+
+  Any scan state change re-renders AuthProvider → re-renders ALL routes.
+  This was the main cause of sluggish tab switching.
+
+  AFTER (fixed):
+    <BrowserRouter>
+      <AuthProvider>        ← auth stands alone, no scan dependency at provider level
+        <ScanProvider>      ← scan is scoped inside authenticated tree only
+          ...
+        </ScanProvider>
+      </AuthProvider>
+    </BrowserRouter>
+
+  AuthContext still calls useScan() in login/signup/logout — that's fine because
+  those are event handlers, not render-time calls. The key is that ScanProvider
+  no longer wraps AuthProvider, so scan state changes don't bubble up to auth.
+*/
+
+const LoginPage = lazy(() => import('./pages/LoginPage'));
+const SignupPage = lazy(() => import('./pages/SignupPage'));
+const OnboardingPage = lazy(() => import('./pages/OnboardingPage'));
+const DashboardPage = lazy(() => import('./pages/DashboardPage'));
+const ScanPage = lazy(() => import('./pages/ScanPage'));
+const AnalysisPage = lazy(() => import('./pages/AnalysisPage'));
+const TrackerPage = lazy(() => import('./pages/TrackerPage'));
+const ProgressPage = lazy(() => import('./pages/ProgressPage'));
+const ProfilePage = lazy(() => import('./pages/ProfilePage'));
 const SmartInsightsPage = lazy(() => import('./pages/SmartInsightsPage'));
 
 function PageLoader() {
@@ -21,11 +47,15 @@ function PageLoader() {
     <div className="min-h-screen flex items-center justify-center bg-surface mesh-bg">
       <div className="text-center">
         <div className="w-16 h-16 rounded-full bg-primary-container flex items-center justify-center mx-auto mb-4">
-          <span className="material-symbols-outlined text-primary text-3xl animate-spin">
-            progress_activity
-          </span>
+          {/*
+            FIX: Don't use a material icon inside PageLoader.
+            If the font hasn't loaded yet this is exactly the screen that shows —
+            rendering an icon here causes the broken-text flash inside the loader itself.
+            Use a pure CSS spinner instead.
+          */}
+          <div className="w-8 h-8 rounded-full border-2 border-primary border-t-transparent animate-spin" />
         </div>
-        <p className="text-on-surface-variant font-medium">Loading…</p>
+        <p className="text-on-surface-variant font-medium text-sm">Loading…</p>
       </div>
     </div>
   );
@@ -51,14 +81,17 @@ function PublicRoute({ children }) {
 
 function App() {
   return (
-    <ScanProvider>
+    /*
+      FIX: BrowserRouter is now the outermost wrapper so both AuthProvider
+      and ScanProvider can use navigation hooks if needed in the future.
+    */
+    <BrowserRouter>
       <AuthProvider>
-        <BrowserRouter>
-          {/* Single Suspense wraps all routes — no per-route flicker */}
+        <ScanProvider>
           <Suspense fallback={<PageLoader />}>
             <Routes>
               {/* Public */}
-              <Route path="/login"  element={<PublicRoute><LoginPage /></PublicRoute>} />
+              <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
               <Route path="/signup" element={<PublicRoute><SignupPage /></PublicRoute>} />
 
               {/* Onboarding */}
@@ -67,20 +100,20 @@ function App() {
               {/* Protected + Layout */}
               <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
                 <Route path="/dashboard" element={<DashboardPage />} />
-                <Route path="/scan"      element={<ScanPage />} />
-                <Route path="/analysis"  element={<AnalysisPage />} />
-                <Route path="/tracker"   element={<TrackerPage />} />
-                <Route path="/progress"  element={<ProgressPage />} />
-                <Route path="/profile"   element={<ProfilePage />} />
-                <Route path="/insights"  element={<SmartInsightsPage />} />
+                <Route path="/scan" element={<ScanPage />} />
+                <Route path="/analysis" element={<AnalysisPage />} />
+                <Route path="/tracker" element={<TrackerPage />} />
+                <Route path="/progress" element={<ProgressPage />} />
+                <Route path="/profile" element={<ProfilePage />} />
+                <Route path="/insights" element={<SmartInsightsPage />} />
               </Route>
 
               <Route path="*" element={<Navigate to="/login" replace />} />
             </Routes>
           </Suspense>
-        </BrowserRouter>
+        </ScanProvider>
       </AuthProvider>
-    </ScanProvider>
+    </BrowserRouter>
   );
 }
 
