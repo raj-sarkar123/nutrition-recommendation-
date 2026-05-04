@@ -257,3 +257,8 @@ body {
 .animate-slideUp {
   animation: slideUp 0.25s ease;
 }
+/* Controlled by main.jsx font loader — do not remove */
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  transition: visibility 0s;
+}
