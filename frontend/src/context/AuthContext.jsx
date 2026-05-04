@@ -5,20 +5,18 @@ import { useScan } from './ScanContext';
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser]       = useState(null);
-  const [token, setToken]     = useState(null);
+  const [user, setUser] = useState(null);
+  const [token, setToken] = useState(null);
   const [loading, setLoading] = useState(true);
 
   const { reloadHistoryForUser, clearSessionOnLogout } = useScan();
 
   useEffect(() => {
     const savedToken = localStorage.getItem('nutriscan_token');
-    const savedUser  = localStorage.getItem('nutriscan_user');
+    const savedUser = localStorage.getItem('nutriscan_user');
     if (savedToken && savedUser) {
       setToken(savedToken);
       setUser(JSON.parse(savedUser));
-      // History is already scoped by getStorageKey() reading nutriscan_user,
-      // so ScanContext initialises correctly on page load — no extra call needed.
     }
     setLoading(false);
   }, []);
@@ -30,7 +28,6 @@ export const AuthProvider = ({ children }) => {
     setUser(authUser);
     localStorage.setItem('nutriscan_token', data.token);
     localStorage.setItem('nutriscan_user', JSON.stringify(authUser));
-    // Reload history now that nutriscan_user is set for the new account
     reloadHistoryForUser();
     return data;
   };
@@ -42,13 +39,11 @@ export const AuthProvider = ({ children }) => {
     setUser(authUser);
     localStorage.setItem('nutriscan_token', data.token);
     localStorage.setItem('nutriscan_user', JSON.stringify(authUser));
-    // New user starts with empty history
     reloadHistoryForUser();
     return data;
   };
 
   const logout = () => {
-    // Wipe in-memory scan state before clearing the user token
     clearSessionOnLogout();
     setToken(null);
     setUser(null);
@@ -56,13 +51,13 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('nutriscan_user');
   };
 
- const updateUser = (updatedUser) => {
-  setUser(prev => {
-    const updated = { ...prev, ...updatedUser };
-    localStorage.setItem('nutriscan_user', JSON.stringify(updated));
-    return updated;
-  });
-};
+  const updateUser = (updatedUser) => {
+    setUser(prev => {
+      const updated = { ...prev, ...updatedUser };
+      localStorage.setItem('nutriscan_user', JSON.stringify(updated));
+      return updated;
+    });
+  };
 
   return (
     <AuthContext.Provider value={{ user, token, loading, login, signup, logout, updateUser }}>
@@ -77,4 +72,6 @@ export const useAuth = () => {
   return context;
 };
 
-export default AuthContext;
+// Export context only if needed for direct consumption (e.g. class components)
+// Named export keeps Fast Refresh happy — no default export of a non-component
+export { AuthContext };
