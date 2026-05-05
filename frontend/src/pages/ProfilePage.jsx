@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import api from "../api/axios";
@@ -19,7 +20,7 @@ function profileToForm(data) {
   return {
     full_name: data.full_name ?? "",
     current_weight: data.profile?.current_weight ?? "",
-    target_weight: data.profile?.target_weight ?? "",
+    height: data.profile?.height ?? "",
     goal: data.profile?.goal || "maintain",
     daily_calorie_target: data.profile?.daily_calorie_target ?? "",
     protein_target: data.profile?.protein_target ?? "",
@@ -188,9 +189,9 @@ export default function ProfilePage() {
           form.current_weight !== ""
             ? parseFloat(form.current_weight)
             : undefined,
-        target_weight:
-          form.target_weight !== ""
-            ? parseFloat(form.target_weight)
+        height:
+          form.height !== ""
+            ? parseFloat(form.height)
             : undefined,
         goal: form.goal || undefined,
         daily_calorie_target:
@@ -222,10 +223,10 @@ export default function ProfilePage() {
             form.current_weight !== ""
               ? parseFloat(form.current_weight)
               : prev.profile?.current_weight,
-          target_weight:
-            form.target_weight !== ""
-              ? parseFloat(form.target_weight)
-              : prev.profile?.target_weight,
+          height:
+            form.height !== ""
+              ? parseFloat(form.height)
+              : prev.profile?.height,
           goal: form.goal ?? prev.profile?.goal,
           daily_calorie_target:
             form.daily_calorie_target !== ""
@@ -305,7 +306,7 @@ export default function ProfilePage() {
 
   return (
     <div className="space-y-6 pb-24">
-      {showAvatarOptions && (
+      {showAvatarOptions && createPortal(
         <div
           className="fixed inset-0 z-[9999] bg-black/40"
           onClick={() => setShowAvatarOptions(false)}
@@ -370,10 +371,11 @@ export default function ProfilePage() {
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
-      {showImagePreview && (
+      {showImagePreview && createPortal(
         <div
           className="fixed inset-0 z-[10000] bg-black flex items-center justify-center"
           onClick={() => setShowImagePreview(false)}
@@ -391,7 +393,8 @@ export default function ProfilePage() {
           >
             <span className="material-symbols-outlined text-2xl">close</span>
           </button>
-        </div>
+        </div>,
+        document.body
       )}
 
       <PrivacyModal
@@ -531,12 +534,12 @@ export default function ProfilePage() {
                 placeholder="64.2"
               />
               <NovaInput
-                label="Target weight"
+                label="Height"
                 type="number"
-                unit="kg"
-                value={form.target_weight}
-                onChange={setField("target_weight")}
-                placeholder="62.0"
+                unit="cm"
+                value={form.height}
+                onChange={setField("height")}
+                placeholder="170"
               />
             </div>
             <div className="space-y-2">
@@ -577,10 +580,10 @@ export default function ProfilePage() {
               </div>
               <div className="text-right">
                 <p className="text-[10px] font-bold tracking-widest uppercase text-on-surface-variant mb-1">
-                  Target
+                  Height
                 </p>
                 <p className="text-xl font-headline font-bold text-on-surface">
-                  {profile?.profile?.target_weight ?? "—"} kg
+                  {profile?.profile?.height ?? "—"} cm
                 </p>
               </div>
             </div>

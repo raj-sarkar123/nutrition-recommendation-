@@ -34,7 +34,6 @@ exports.getProfile = async (req, res) => {
           goal: 'lose',
           current_weight: 64.2,
           height: 168,
-          target_weight: 62.0,
           daily_calorie_target: 2200,
           protein_target: 120,
           carbs_target: 200,
@@ -55,7 +54,7 @@ exports.updateProfile = async (req, res) => {
     const userId = req.user.id;
     const {
       full_name, avatar_url,
-      current_weight, target_weight, goal,
+      current_weight, height, goal,
       daily_calorie_target, protein_target, carbs_target, fats_target,
     } = req.body;
 
@@ -76,7 +75,7 @@ exports.updateProfile = async (req, res) => {
       // and empty strings are still written to the DB rather than silently skipped.
       const profileUpdates = { updated_at: new Date().toISOString() };
       if (current_weight       !== undefined) profileUpdates.current_weight       = current_weight;
-      if (target_weight        !== undefined) profileUpdates.target_weight        = target_weight;
+      if (height               !== undefined) profileUpdates.height               = height;
       if (goal                 !== undefined) profileUpdates.goal                 = goal;
       if (daily_calorie_target !== undefined) profileUpdates.daily_calorie_target = daily_calorie_target;
       if (protein_target       !== undefined) profileUpdates.protein_target       = protein_target;

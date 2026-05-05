@@ -32,7 +32,6 @@ CREATE TABLE user_profiles (
   goal VARCHAR(50),
   current_weight DECIMAL(5,1),
   height DECIMAL(5,1),
-  target_weight DECIMAL(5,1),
   daily_calorie_target INTEGER DEFAULT 2200,
   protein_target INTEGER DEFAULT 120,
   carbs_target INTEGER DEFAULT 200,

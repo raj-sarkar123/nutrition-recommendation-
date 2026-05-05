@@ -1,4 +1,7 @@
 import { useState, useEffect } from 'react';
+import { useAuth } from '../context/AuthContext';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 import api from '../api/axios';
 import ProgressRing from '../components/ui/ProgressRing';
 
@@ -77,6 +80,8 @@ function CalorieRing({ calories, target, size = 256, strokeWidth = 24 }) {
 }
 
 export default function ProgressPage() {
+  const { user } = useAuth();
+  const [downloadingPdf, setDownloadingPdf] = useState(false);
   const [weekly,    setWeekly]    = useState(DAY_LABELS.map(d => ({ day: d, calories: 0, goal_met: false })));
   const [streak,    setStreak]    = useState(0);
   const [dailyGoal, setDailyGoal] = useState({ calories: 0, target: 2200, protein: 0, carbs: 0, fats: 0 });
@@ -136,6 +141,103 @@ export default function ProgressPage() {
     ? Math.round(weekly.reduce((s, d) => s + d.calories, 0) / weekly.length)
     : 0;
 
+  const handleDownloadPdf = async () => {
+    try {
+      setDownloadingPdf(true);
+      
+      const { data: profileData } = await api.get('/users/profile');
+      
+      const doc = new jsPDF('p', 'mm', 'a4');
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const pageHeight = doc.internal.pageSize.getHeight();
+      let yPos = 20;
+
+      doc.setFontSize(22);
+      doc.setTextColor(0, 105, 75);
+      doc.text('NutriScan AI Diagnostic Report', pageWidth / 2, yPos, { align: 'center' });
+      yPos += 15;
+
+      doc.setFontSize(12);
+      doc.setTextColor(50, 50, 50);
+      
+      const details = [
+        `Name: ${profileData?.full_name || user?.full_name || 'N/A'}`,
+        `Email: ${profileData?.email || user?.email || 'N/A'}`,
+        `User ID: ${user?.id || 'N/A'}`,
+        `Weight: ${profileData?.profile?.current_weight ? profileData.profile.current_weight + ' kg' : 'N/A'}`,
+        `Height: ${profileData?.profile?.height ? profileData.profile.height + ' cm' : 'N/A'}`,
+        `Goal: ${profileData?.profile?.goal ? profileData.profile.goal.toUpperCase() : 'N/A'}`,
+        `Date: ${new Date().toLocaleDateString()}`
+      ];
+
+      details.forEach((text) => {
+        doc.text(text, 20, yPos);
+        yPos += 8;
+      });
+
+      yPos += 10;
+      doc.setDrawColor(200, 200, 200);
+      doc.line(20, yPos, pageWidth - 20, yPos);
+      yPos += 15;
+
+      doc.setFontSize(16);
+      doc.setTextColor(0, 105, 75);
+      doc.text('Clinical Summary', 20, yPos);
+      yPos += 10;
+
+      doc.setFontSize(11);
+      doc.setTextColor(50, 50, 50);
+      
+      const summaryText = dailyGoal.calories === 0
+            ? "No meals logged today. Start tracking your meals to receive personalised AI insights on your nutritional patterns."
+            : isOverBudget
+            ? `You've exceeded your daily target by ${(dailyGoal.calories - dailyGoal.target).toLocaleString()} kcal (${Math.round((dailyGoal.calories / dailyGoal.target) * 100)}% consumed). Focus on hydration and avoid further calorie intake today.`
+            : dailyGoal.calories < dailyGoal.target * 0.5
+            ? `You've consumed ${dailyGoal.calories.toLocaleString()} kcal — only ${percentage}% of your daily target. Make sure to eat a balanced meal before the day ends.`
+            : `You're on track at ${percentage}% of your daily goal (${dailyGoal.calories.toLocaleString()} kcal). Keep prioritising lean protein and fibre-rich foods for optimal metabolic balance.`;
+      
+      const splitSummary = doc.splitTextToSize(summaryText, pageWidth - 40);
+      doc.text(splitSummary, 20, yPos);
+      yPos += (splitSummary.length * 6) + 10;
+
+      doc.setFontSize(14);
+      doc.setTextColor(0, 0, 0);
+      doc.text('Current Progress', 20, yPos);
+      yPos += 8;
+      doc.setFontSize(11);
+      doc.text(`Calories: ${dailyGoal.calories} / ${dailyGoal.target} kcal`, 20, yPos); yPos += 6;
+      doc.text(`Protein: ${Math.round(dailyGoal.protein)} / ${targets.protein_target || 120} g`, 20, yPos); yPos += 6;
+      doc.text(`Carbs: ${Math.round(dailyGoal.carbs)} / ${targets.carbs_target || 200} g`, 20, yPos); yPos += 6;
+      doc.text(`Fats: ${Math.round(dailyGoal.fats)} / ${targets.fats_target || 65} g`, 20, yPos); yPos += 6;
+      doc.text(`Metabolic Accuracy: ${metabolicScore}%`, 20, yPos); yPos += 6;
+      doc.text(`Current Streak: ${streak} Days`, 20, yPos); yPos += 15;
+
+      const contentEl = document.getElementById('pdf-content');
+      if (contentEl) {
+        const canvas = await html2canvas(contentEl, { scale: 2, useCORS: true, backgroundColor: '#ffffff' });
+        const imgData = canvas.toDataURL('image/png');
+        
+        const imgWidth = pageWidth - 40;
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+        
+        if (yPos + imgHeight > pageHeight - 20) {
+          doc.addPage();
+          yPos = 20;
+        }
+
+        doc.addImage(imgData, 'PNG', 20, yPos, imgWidth, imgHeight);
+      }
+
+      doc.save('NutriScan_Diagnostic_Report.pdf');
+
+    } catch (error) {
+      console.error('Failed to generate PDF:', error);
+      alert('Failed to generate PDF. Please try again.');
+    } finally {
+      setDownloadingPdf(false);
+    }
+  };
+
   // ── Loading skeleton ──────────────────────────────────────────────────────
   if (!loaded) {
     return (
@@ -154,7 +256,7 @@ export default function ProgressPage() {
   }
 
   return (
-    <div className="space-y-10 pb-20">
+    <div id="pdf-content" className="space-y-10 pb-20">
 
       {/* Hero */}
       <section className="space-y-2">
@@ -416,9 +518,14 @@ export default function ProgressPage() {
             🔥 {streak}-day streak — you're building great habits!
           </p>
         )}
-        <button className="mt-6 flex items-center gap-2 text-primary-fixed text-xs font-bold uppercase tracking-widest">
-          Full Diagnostic Report
-          <span className="material-symbols-outlined text-sm">arrow_forward</span>
+        <button 
+          data-html2canvas-ignore
+          onClick={handleDownloadPdf}
+          disabled={downloadingPdf}
+          className="mt-6 flex items-center gap-2 text-primary-fixed text-xs font-bold uppercase tracking-widest disabled:opacity-50"
+        >
+          {downloadingPdf ? 'Generating Report...' : 'Full Diagnostic Report'}
+          {!downloadingPdf && <span className="material-symbols-outlined text-sm">download</span>}
         </button>
       </section>
     </div>
