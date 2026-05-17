@@ -55,7 +55,7 @@ export default function AppLayout() {
       <style>{`
         .page-enter {
           animation: pageEnter 0.18s cubic-bezier(0.22, 1, 0.36, 1);
-          will-change: opacity, transform;
+          will-change: opacity;
         }
         @keyframes pageEnter {
           from {

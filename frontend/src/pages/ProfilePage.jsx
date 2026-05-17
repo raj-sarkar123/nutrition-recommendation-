@@ -439,9 +439,8 @@ export default function ProfilePage() {
       {/* Toast */}
       {toast && (
         <div
-          className={`fixed bottom-28 left-1/2 -translate-x-1/2 z-[9998] px-5 py-3 rounded-2xl shadow-xl font-semibold text-sm text-white transition-all duration-300 ${
-            toastType === "error" ? "bg-error" : "bg-primary"
-          }`}
+          className={`fixed top-24 left-1/2 -translate-x-1/2 z-[9998] px-5 py-3 rounded-2xl shadow-xl font-semibold text-sm text-white transition-all duration-300 ${toastType === "error" ? "bg-error" : "bg-primary"
+            }`}
           style={{ whiteSpace: "nowrap" }}
         >
           {toast}
@@ -449,86 +448,110 @@ export default function ProfilePage() {
       )}
 
       {/* ────────────── Profile Header ────────────── */}
-      <section className="relative">
-        <div className="h-24 rounded-t-[1.5rem] bg-gradient-to-r from-primary to-primary-fixed" />
-        <div className="bg-surface-container-lowest/60 backdrop-blur-2xl rounded-b-[1.5rem] px-6 pb-6 outline outline-1 outline-white/20 nova-shadow text-center">
-          {/* ── Tappable avatar with upload overlay ── */}
-          <div className="relative -mt-12 mb-3 inline-block">
-            <button
-              onClick={handleAvatarClick}
-              disabled={avatarUploading || avatarRemoving}
-              aria-label="Change profile photo"
-              className="group relative block rounded-full focus:outline-none focus:ring-2 focus:ring-primary/50"
-            >
-              {/* Avatar image / initials — fades + shrinks when removing */}
-              <div
-                className="w-24 h-24 rounded-full overflow-hidden shadow-xl border-4 border-white transition-all duration-300"
-                style={{
-                  opacity: avatarRemoving ? 0 : 1,
-                  transform: avatarRemoving ? "scale(0.85)" : "scale(1)",
-                }}
-              >
-                {(avatarRemoving ? frozenAvatarRef.current : resolvedAvatar) ? (
-                  <img
-                    src={avatarRemoving ? frozenAvatarRef.current : resolvedAvatar}
-                    alt="Profile"
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-full bg-primary-container flex items-center justify-center text-primary text-2xl font-headline font-bold">
-                    {initials}
-                  </div>
-                )}
-              </div>
+      <section className="relative w-full max-w-xl mx-auto">
+        {/* Modern floating glass card */}
+        <div className="relative overflow-hidden rounded-[32px] border border-white/10 bg-white/[0.03] backdrop-blur-2xl shadow-[0_10px_60px_rgba(0,0,0,0.35)]">
 
-              {/* Camera overlay — hidden at rest, revealed on hover/press or while uploading */}
-              <div
-                className={`absolute inset-0 flex items-center justify-center rounded-full transition-all duration-200 ${
-                  avatarUploading
-                    ? "bg-black/40 opacity-100"
-                    : "bg-black/30 opacity-0 group-hover:opacity-100 group-active:opacity-100"
-                }`}
-              >
-                {avatarUploading ? (
-                  <span className="material-symbols-outlined text-white text-xl animate-spin">
-                    progress_activity
-                  </span>
-                ) : (
-                  <span
-                    className="material-symbols-outlined text-white"
-                    style={{ fontSize: 22, fontVariationSettings: "'FILL' 1" }}
+          {/* Ambient gradients */}
+          <div className="absolute -top-20 -right-20 w-56 h-56 bg-primary/10 blur-3xl rounded-full pointer-events-none" />
+          <div className="absolute -bottom-16 -left-16 w-44 h-44 bg-secondary/10 blur-3xl rounded-full pointer-events-none" />
+
+          {/* Inner content */}
+          <div className="relative z-10 p-7 sm:p-8">
+            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
+
+              {/* Avatar Section */}
+              <div className="relative shrink-0">
+                <button
+                  onClick={handleAvatarClick}
+                  disabled={avatarUploading || avatarRemoving}
+                  aria-label="Change profile photo"
+                  className="group relative"
+                >
+                  {/* Glow Ring */}
+                  <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-primary/30 to-secondary/30 blur-md opacity-70 group-hover:opacity-100 transition duration-500" />
+
+                  {/* Avatar */}
+                  <div
+                    className="relative w-24 h-24 rounded-full overflow-hidden border border-white/20 bg-surface shadow-2xl transition-all duration-300"
+                    style={{
+                      opacity: avatarRemoving ? 0 : 1,
+                      transform: avatarRemoving ? "scale(0.9)" : "scale(1)",
+                    }}
                   >
-                    photo_camera
-                  </span>
-                )}
+                    {(avatarRemoving ? frozenAvatarRef.current : resolvedAvatar) ? (
+                      <img
+                        src={avatarRemoving ? frozenAvatarRef.current : resolvedAvatar}
+                        alt="Profile"
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary-container/50 to-secondary-container/50 text-primary text-2xl font-black">
+                        {initials}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Overlay */}
+                  <div
+                    className={`absolute inset-0 flex items-center justify-center rounded-full transition-all duration-300 ${avatarUploading
+                        ? "bg-black/50 opacity-100"
+                        : "bg-black/40 opacity-0 group-hover:opacity-100"
+                      }`}
+                  >
+                    {avatarUploading ? (
+                      <span className="material-symbols-outlined text-white animate-spin">
+                        progress_activity
+                      </span>
+                    ) : (
+                      <span
+                        className="material-symbols-outlined text-white scale-90 group-hover:scale-110 transition-transform duration-300"
+                        style={{ fontVariationSettings: "'FILL' 1" }}
+                      >
+                        photo_camera
+                      </span>
+                    )}
+                  </div>
+                </button>
+
+                {/* Online Indicator */}
+                <div
+                  className="absolute bottom-1 right-1 w-4 h-4 rounded-full bg-emerald-500 border-2 border-black shadow-lg"
+                  style={{ opacity: avatarRemoving ? 0 : 1 }}
+                />
               </div>
-            </button>
 
-            {/* Online dot — fades out with the avatar */}
-            <div
-              className="absolute bottom-1 right-1 w-5 h-5 bg-primary border-[3px] border-white rounded-full pointer-events-none transition-opacity duration-300"
-              style={{ opacity: avatarRemoving ? 0 : 1 }}
-            />
-          </div>
+              {/* Details */}
+              <div className="flex-1 text-center sm:text-left flex flex-col justify-center pt-1">
 
-          {/* Name */}
-          <h1 className="text-2xl font-headline font-bold tracking-tight text-on-surface">
-            {displayName}
-          </h1>
-          <p className="text-on-surface-variant font-medium text-sm mt-0.5">
-            {profile?.email || user?.email}
-          </p>
+                {/* Premium Badge */}
+                <div className="mb-3 inline-flex self-center sm:self-start items-center gap-2 px-3 py-1 rounded-full border border-primary/15 bg-primary/10 backdrop-blur-md">
+                  <span
+                    className="material-symbols-outlined text-primary text-sm"
+                    style={{ fontVariationSettings: "'FILL' 1" }}
+                  >
+                    verified
+                  </span>
 
-          <div className="mt-3 inline-flex items-center gap-2 bg-secondary-container px-4 py-1.5 rounded-full">
-            <span
-              className="material-symbols-outlined text-on-secondary-container"
-              style={{ fontSize: 16, fontVariationSettings: "'FILL' 1" }}
-            >
-              verified
-            </span>
-            <span className="text-[10px] font-bold tracking-widest uppercase text-on-secondary-container">
-              NutriScan Elite
-            </span>
+                  <span className="text-[10px] uppercase tracking-[0.25em] font-bold text-primary">
+                    NutriScan Elite
+                  </span>
+                </div>
+
+                {/* Name */}
+                <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-on-surface leading-none">
+                  {displayName}
+                </h1>
+
+                {/* Email */}
+                <p className="mt-2 text-sm text-on-surface-variant font-medium tracking-wide">
+                  {profile?.email || user?.email}
+                </p>
+
+                {/* Optional subtle divider */}
+                <div className="mt-5 h-px w-full bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -575,11 +598,10 @@ export default function ProfilePage() {
                   <button
                     key={g.value}
                     onClick={() => setForm((p) => ({ ...p, goal: g.value }))}
-                    className={`py-3 rounded-xl flex flex-col items-center gap-1 text-xs font-semibold transition-all active:scale-95 ${
-                      form.goal === g.value
-                        ? "bg-primary text-white"
-                        : "bg-surface-container text-on-surface-variant hover:bg-surface-container-high"
-                    }`}
+                    className={`py-3 rounded-xl flex flex-col items-center gap-1 text-xs font-semibold transition-all active:scale-95 ${form.goal === g.value
+                      ? "bg-primary text-white"
+                      : "bg-surface-container text-on-surface-variant hover:bg-surface-container-high"
+                      }`}
                   >
                     <span className="material-symbols-outlined text-base">
                       {g.icon}
@@ -799,14 +821,12 @@ export default function ProfilePage() {
               <span className="font-medium text-sm">Dark Mode</span>
             </div>
             <div
-              className={`w-11 h-6 rounded-full relative transition-colors duration-300 ${
-                darkMode ? "bg-primary" : "bg-surface-container-high"
-              }`}
+              className={`w-11 h-6 rounded-full relative transition-colors duration-300 ${darkMode ? "bg-primary" : "bg-surface-container-high"
+                }`}
             >
               <div
-                className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-all duration-300 ${
-                  darkMode ? "left-6" : "left-1"
-                }`}
+                className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-all duration-300 ${darkMode ? "left-6" : "left-1"
+                  }`}
               />
             </div>
           </div>

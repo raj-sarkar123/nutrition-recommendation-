@@ -235,7 +235,7 @@ export default function AnalysisPage() {
       {/* Toast */}
       {toast && (
         <div
-          className={`fixed bottom-24 left-1/2 -translate-x-1/2 z-[9999] px-6 py-3.5 rounded-full shadow-2xl font-bold text-sm transition-opacity duration-300 text-white border border-white/20 ${toastType === 'error' ? 'bg-error' : 'bg-primary'
+          className={`fixed top-24 left-1/2 -translate-x-1/2 z-[9999] px-6 py-3.5 rounded-full shadow-2xl font-bold text-sm transition-opacity duration-300 text-white border border-white/20 ${toastType === 'error' ? 'bg-error' : 'bg-primary'
             }`}
         >
           {toast}
