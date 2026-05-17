@@ -32,12 +32,24 @@ function profileToForm(data) {
 /* ─────────────────────────────────────────────────────────────
    PROFILE PAGE
 ───────────────────────────────────────────────────────────── */
+const PROFILE_CACHE_KEY = 'nutriscan_profile_cache';
+
+function loadCachedProfile() {
+  try {
+    const cached = sessionStorage.getItem(PROFILE_CACHE_KEY);
+    if (cached) return JSON.parse(cached);
+  } catch { /* ignore */ }
+  return null;
+}
+
 export default function ProfilePage() {
   const { user, logout, updateUser } = useAuth();
   const navigate = useNavigate();
 
-  const [profile, setProfile] = useState(null);
-  const [loaded, setLoaded] = useState(false);
+  const cachedProfile = loadCachedProfile();
+  const [profile, setProfile] = useState(cachedProfile);
+  // Skip the full-screen spinner if we have cached profile data
+  const [loaded, setLoaded] = useState(!!cachedProfile);
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [toast, setToast] = useState("");
@@ -46,7 +58,7 @@ export default function ProfilePage() {
   const [darkMode, setDarkMode] = useState(() =>
     document.documentElement.classList.contains("dark"),
   );
-  const [form, setForm] = useState(profileToForm({ profile: {} }));
+  const [form, setForm] = useState(profileToForm(cachedProfile || { profile: {} }));
 
   // Avatar upload state
   const [avatarUploading, setAvatarUploading] = useState(false);
@@ -79,6 +91,8 @@ export default function ProfilePage() {
       const { data } = await api.get("/users/profile");
       setProfile(data);
       setForm(profileToForm(data));
+      // Cache for instant render on next navigation
+      try { sessionStorage.setItem(PROFILE_CACHE_KEY, JSON.stringify(data)); } catch { /* ignore */ }
     } catch {
       /* keep defaults */
     } finally {
@@ -112,31 +126,35 @@ export default function ProfilePage() {
     setShowAvatarOptions(false);
     setAvatarRemoving(true);
 
-    // 2. Run the CSS transition (300 ms) and the API call in parallel.
-    //    We deliberately clear local state after the transition so the
-    //    image never disappears before the animation finishes.
-    const [apiResult] = await Promise.allSettled([
-      api.delete("/users/avatar"),
-      new Promise((r) => setTimeout(r, 320)), // matches transition-duration
-    ]);
+    // 2. Fire the API call in the background — don't block the UI on it.
+    const apiPromise = api.delete("/users/avatar");
 
-    // 3. Transition is done — clear avatar data first so the initials div
+    // 3. Wait only for the CSS transition to finish (300ms + small buffer).
+    await new Promise((r) => setTimeout(r, 320));
+
+    // 4. Transition is done — clear avatar data first so the initials div
     //    renders into the DOM while the container is still invisible (opacity 0).
     updateUser({ avatar_url: null });
-    setProfile((p) => ({ ...p, avatar_url: null }));
+    setProfile((p) => {
+      const updated = { ...p, avatar_url: null };
+      try { sessionStorage.setItem(PROFILE_CACHE_KEY, JSON.stringify(updated)); } catch { /* ignore */ }
+      return updated;
+    });
     revokeBlobUrl();
     setAvatarPreview(null);
     frozenAvatarRef.current = null;
 
-    // 4. One rAF later the initials are painted; now fade the circle back in.
+    // 5. One rAF later the initials are painted; now fade the circle back in.
     requestAnimationFrame(() => {
       setAvatarRemoving(false);
     });
 
-    if (apiResult.status === "rejected") {
-      showToast("Failed to remove photo", "error");
-    } else {
+    // 6. Handle the API result asynchronously — toast only, no UI blocking.
+    try {
+      await apiPromise;
       showToast("Photo removed");
+    } catch {
+      showToast("Failed to remove photo", "error");
     }
   };
 
@@ -246,6 +264,12 @@ export default function ProfilePage() {
               : prev.profile?.fats_target,
         },
       }));
+
+      // Update session cache with latest profile
+      setProfile(prev => {
+        try { sessionStorage.setItem(PROFILE_CACHE_KEY, JSON.stringify(prev)); } catch { /* ignore */ }
+        return prev;
+      });
 
       setEditing(false);
       showToast("Profile updated successfully");
@@ -415,7 +439,7 @@ export default function ProfilePage() {
       {/* Toast */}
       {toast && (
         <div
-          className={`fixed top-20 left-1/2 -translate-x-1/2 z-[9998] px-5 py-3 rounded-2xl shadow-xl font-semibold text-sm text-white transition-all ${
+          className={`fixed bottom-28 left-1/2 -translate-x-1/2 z-[9998] px-5 py-3 rounded-2xl shadow-xl font-semibold text-sm text-white transition-all duration-300 ${
             toastType === "error" ? "bg-error" : "bg-primary"
           }`}
           style={{ whiteSpace: "nowrap" }}

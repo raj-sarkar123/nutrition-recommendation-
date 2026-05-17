@@ -75,6 +75,11 @@ export const ScanProvider = ({ children }) => {
 
   /** Remove a single history entry */
   const deleteHistoryEntry = useCallback((id) => {
+    // If the deleted entry is the one currently displayed, clear it
+    setCurrentScan(prev => {
+      const currentId = prev?.id || prev?.scan_id;
+      return (currentId && String(currentId) === String(id)) ? null : prev;
+    });
     setHistory(prev => {
       const updated = prev.filter(h => h.id !== id);
       try {
@@ -87,6 +92,7 @@ export const ScanProvider = ({ children }) => {
   /** Clear all history for the current user */
   const clearHistory = useCallback(() => {
     setHistory([]);
+    setCurrentScan(null);
     try {
       localStorage.removeItem(getStorageKey());
     } catch { /* ignore */ }

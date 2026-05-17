@@ -1,11 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useNutrition } from '../context/NutritionContext';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import api from '../api/axios';
-import ProgressRing from '../components/ui/ProgressRing';
 
-// Day labels — Mon-first order
 const DAY_LABELS = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'];
 
 function todayMonIndex() {
@@ -13,33 +12,30 @@ function todayMonIndex() {
   return d === 0 ? 6 : d - 1;
 }
 
-// ── Over-budget ring drawn manually so we can show red overflow arc ───────────
 function CalorieRing({ calories, target, size = 256, strokeWidth = 24 }) {
-  const isOver     = calories > target;
-  const pct        = Math.min((calories / target) * 100, 100);
-  const overPct    = isOver ? Math.min(((calories - target) / target) * 100, 100) : 0;
+  const isOver = calories > target;
+  const pct = Math.min((calories / target) * 100, 100);
+  const overPct = isOver ? Math.min(((calories - target) / target) * 100, 100) : 0;
 
-  const r          = (size - strokeWidth) / 2;
-  const cx         = size / 2;
-  const cy         = size / 2;
-  const circ       = 2 * Math.PI * r;
+  const r = (size - strokeWidth) / 2;
+  const cx = size / 2;
+  const cy = size / 2;
+  const circ = 2 * Math.PI * r;
 
   const normalOffset = circ - (pct / 100) * circ;
-  const overOffset   = circ - (overPct / 100) * circ;
+  const overOffset = circ - (overPct / 100) * circ;
 
-  const displayPct    = Math.round((calories / target) * 100);
-  const remaining     = target - calories;
+  const displayPct = Math.round((calories / target) * 100);
+  const remaining = target - calories;
   const isOverDisplay = remaining < 0;
 
   return (
     <div className="relative flex items-center justify-center" style={{ width: size, height: size }}>
       <svg width={size} height={size} className="-rotate-90" viewBox={`0 0 ${size} ${size}`}>
-        {/* Track */}
         <circle cx={cx} cy={cy} r={r} fill="none"
           stroke="var(--md-sys-color-surface-container, #e8e8e8)"
           strokeWidth={strokeWidth}
         />
-        {/* Normal fill — primary color up to 100% */}
         <circle cx={cx} cy={cy} r={r} fill="none"
           stroke={isOver ? 'var(--md-sys-color-error, #b3261e)' : 'var(--md-sys-color-primary, #00694b)'}
           strokeWidth={strokeWidth}
@@ -48,7 +44,6 @@ function CalorieRing({ calories, target, size = 256, strokeWidth = 24 }) {
           strokeLinecap="round"
           style={{ transition: 'stroke-dashoffset 0.7s ease, stroke 0.3s ease' }}
         />
-        {/* Over-budget secondary arc — brighter red on top */}
         {isOver && (
           <circle cx={cx} cy={cy} r={r} fill="none"
             stroke="rgba(220,50,50,0.4)"
@@ -60,8 +55,6 @@ function CalorieRing({ calories, target, size = 256, strokeWidth = 24 }) {
           />
         )}
       </svg>
-
-      {/* Center text */}
       <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-4">
         <span className={`text-4xl font-headline font-bold tracking-tight leading-none ${isOver ? 'text-error' : 'text-on-surface'}`}>
           {displayPct}%
@@ -81,12 +74,23 @@ function CalorieRing({ calories, target, size = 256, strokeWidth = 24 }) {
 
 export default function ProgressPage() {
   const { user } = useAuth();
+  // ✅ Use cached nutrition data — no skeleton flash on tab switch
+  const { progress: ctxProgress, targets: ctxTargets, initialLoading } = useNutrition();
+
   const [downloadingPdf, setDownloadingPdf] = useState(false);
-  const [weekly,    setWeekly]    = useState(DAY_LABELS.map(d => ({ day: d, calories: 0, goal_met: false })));
-  const [streak,    setStreak]    = useState(0);
-  const [dailyGoal, setDailyGoal] = useState({ calories: 0, target: 2200, protein: 0, carbs: 0, fats: 0 });
-  const [targets,   setTargets]   = useState({ protein_target: 120, carbs_target: 200, fats_target: 65 });
-  const [loaded,    setLoaded]    = useState(false);
+  const [weekly, setWeekly] = useState(DAY_LABELS.map(d => ({ day: d, calories: 0, goal_met: false })));
+  const [streak, setStreak] = useState(0);
+  const [weeklyLoaded, setWeeklyLoaded] = useState(false);
+
+  // Derive daily values from context (already cached)
+  const dailyGoal = {
+    calories: ctxProgress?.total_calories || 0,
+    target: ctxTargets?.daily_calorie_target || 2200,
+    protein: ctxProgress?.total_protein || 0,
+    carbs: ctxProgress?.total_carbs || 0,
+    fats: ctxProgress?.total_fats || 0,
+  };
+  const targets = ctxTargets || { protein_target: 120, carbs_target: 200, fats_target: 65 };
 
   const fetchWeekly = async () => {
     try {
@@ -107,31 +111,15 @@ export default function ProgressPage() {
     } catch { /* keep 0 */ }
   };
 
-  const fetchDaily = async () => {
-    try {
-      const { data } = await api.get('/progress/daily');
-      const p = data.progress || {};
-      const t = data.targets  || {};
-      setDailyGoal({
-        calories: p.total_calories || 0,
-        target:   t.daily_calorie_target || 2200,
-        protein:  p.total_protein || 0,
-        carbs:    p.total_carbs   || 0,
-        fats:     p.total_fats    || 0,
-      });
-      setTargets(t);
-    } catch { /* keep defaults */ }
-  };
-
   useEffect(() => {
-    Promise.all([fetchWeekly(), fetchStreak(), fetchDaily()])
-      .finally(() => setLoaded(true));
+    Promise.all([fetchWeekly(), fetchStreak()])
+      .finally(() => setWeeklyLoaded(true));
   }, []);
 
-  const maxCalories    = Math.max(...weekly.map(d => d.calories), 1);
-  const percentage     = Math.min(Math.round((dailyGoal.calories / dailyGoal.target) * 100), 100);
-  const isOverBudget   = dailyGoal.calories > dailyGoal.target;
-  const todayIdx       = todayMonIndex();
+  const maxCalories = Math.max(...weekly.map(d => d.calories), 1);
+  const percentage = Math.min(Math.round((dailyGoal.calories / dailyGoal.target) * 100), 100);
+  const isOverBudget = dailyGoal.calories > dailyGoal.target;
+  const todayIdx = todayMonIndex();
 
   const metabolicScore = dailyGoal.target > 0
     ? Math.min(100, Math.round((1 - Math.abs(dailyGoal.calories - dailyGoal.target) / dailyGoal.target) * 100))
@@ -144,9 +132,7 @@ export default function ProgressPage() {
   const handleDownloadPdf = async () => {
     try {
       setDownloadingPdf(true);
-      
       const { data: profileData } = await api.get('/users/profile');
-      
       const doc = new jsPDF('p', 'mm', 'a4');
       const pageWidth = doc.internal.pageSize.getWidth();
       const pageHeight = doc.internal.pageSize.getHeight();
@@ -159,7 +145,6 @@ export default function ProgressPage() {
 
       doc.setFontSize(12);
       doc.setTextColor(50, 50, 50);
-      
       const details = [
         `Name: ${profileData?.full_name || user?.full_name || 'N/A'}`,
         `Email: ${profileData?.email || user?.email || 'N/A'}`,
@@ -167,13 +152,9 @@ export default function ProgressPage() {
         `Weight: ${profileData?.profile?.current_weight ? profileData.profile.current_weight + ' kg' : 'N/A'}`,
         `Height: ${profileData?.profile?.height ? profileData.profile.height + ' cm' : 'N/A'}`,
         `Goal: ${profileData?.profile?.goal ? profileData.profile.goal.toUpperCase() : 'N/A'}`,
-        `Date: ${new Date().toLocaleDateString()}`
+        `Date: ${new Date().toLocaleDateString()}`,
       ];
-
-      details.forEach((text) => {
-        doc.text(text, 20, yPos);
-        yPos += 8;
-      });
+      details.forEach((text) => { doc.text(text, 20, yPos); yPos += 8; });
 
       yPos += 10;
       doc.setDrawColor(200, 200, 200);
@@ -187,15 +168,13 @@ export default function ProgressPage() {
 
       doc.setFontSize(11);
       doc.setTextColor(50, 50, 50);
-      
       const summaryText = dailyGoal.calories === 0
-            ? "No meals logged today. Start tracking your meals to receive personalised AI insights on your nutritional patterns."
-            : isOverBudget
-            ? `You've exceeded your daily target by ${(dailyGoal.calories - dailyGoal.target).toLocaleString()} kcal (${Math.round((dailyGoal.calories / dailyGoal.target) * 100)}% consumed). Focus on hydration and avoid further calorie intake today.`
-            : dailyGoal.calories < dailyGoal.target * 0.5
+        ? 'No meals logged today. Start tracking your meals to receive personalised AI insights on your nutritional patterns.'
+        : isOverBudget
+          ? `You've exceeded your daily target by ${(dailyGoal.calories - dailyGoal.target).toLocaleString()} kcal (${Math.round((dailyGoal.calories / dailyGoal.target) * 100)}% consumed). Focus on hydration and avoid further calorie intake today.`
+          : dailyGoal.calories < dailyGoal.target * 0.5
             ? `You've consumed ${dailyGoal.calories.toLocaleString()} kcal — only ${percentage}% of your daily target. Make sure to eat a balanced meal before the day ends.`
             : `You're on track at ${percentage}% of your daily goal (${dailyGoal.calories.toLocaleString()} kcal). Keep prioritising lean protein and fibre-rich foods for optimal metabolic balance.`;
-      
       const splitSummary = doc.splitTextToSize(summaryText, pageWidth - 40);
       doc.text(splitSummary, 20, yPos);
       yPos += (splitSummary.length * 6) + 10;
@@ -216,20 +195,13 @@ export default function ProgressPage() {
       if (contentEl) {
         const canvas = await html2canvas(contentEl, { scale: 2, useCORS: true, backgroundColor: '#ffffff' });
         const imgData = canvas.toDataURL('image/png');
-        
         const imgWidth = pageWidth - 40;
         const imgHeight = (canvas.height * imgWidth) / canvas.width;
-        
-        if (yPos + imgHeight > pageHeight - 20) {
-          doc.addPage();
-          yPos = 20;
-        }
-
+        if (yPos + imgHeight > pageHeight - 20) { doc.addPage(); yPos = 20; }
         doc.addImage(imgData, 'PNG', 20, yPos, imgWidth, imgHeight);
       }
 
       doc.save('NutriScan_Diagnostic_Report.pdf');
-
     } catch (error) {
       console.error('Failed to generate PDF:', error);
       alert('Failed to generate PDF. Please try again.');
@@ -238,8 +210,8 @@ export default function ProgressPage() {
     }
   };
 
-  // ── Loading skeleton ──────────────────────────────────────────────────────
-  if (!loaded) {
+  // Only show full skeleton on very first load (no cached data at all)
+  if (initialLoading && !weeklyLoaded) {
     return (
       <div className="space-y-10 pb-20 animate-pulse">
         <div className="h-14 w-40 bg-surface-container rounded-2xl" />
@@ -247,7 +219,7 @@ export default function ProgressPage() {
           <div className="w-64 h-64 rounded-full bg-surface-container" />
         </div>
         <div className="grid grid-cols-3 gap-3">
-          {[1,2,3].map(i => <div key={i} className="h-24 bg-surface-container rounded-2xl" />)}
+          {[1, 2, 3].map(i => <div key={i} className="h-24 bg-surface-container rounded-2xl" />)}
         </div>
         <div className="h-40 bg-surface-container rounded-3xl" />
         <div className="h-64 bg-surface-container rounded-3xl" />
@@ -257,7 +229,6 @@ export default function ProgressPage() {
 
   return (
     <div id="pdf-content" className="space-y-10 pb-20">
-
       {/* Hero */}
       <section className="space-y-2">
         <h1 className={`text-[3.5rem] font-headline font-extrabold tracking-[-0.04em] leading-[0.9] ${isOverBudget ? 'text-error' : 'text-primary'}`}>
@@ -292,25 +263,20 @@ export default function ProgressPage() {
         </section>
       )}
 
-      {/* Goal Ring — custom component that handles over-budget */}
+      {/* Goal Ring */}
       <section className="relative flex justify-center py-8">
-        <CalorieRing
-          calories={dailyGoal.calories}
-          target={dailyGoal.target}
-          size={256}
-          strokeWidth={24}
-        />
+        <CalorieRing calories={dailyGoal.calories} target={dailyGoal.target} size={256} strokeWidth={24} />
       </section>
 
       {/* Today macro summary */}
       <section className="grid grid-cols-3 gap-3">
         {[
           { label: 'Protein', value: dailyGoal.protein, target: targets.protein_target || 120, unit: 'g', color: 'bg-primary' },
-          { label: 'Carbs',   value: dailyGoal.carbs,   target: targets.carbs_target   || 200, unit: 'g', color: 'bg-secondary' },
-          { label: 'Fats',    value: dailyGoal.fats,    target: targets.fats_target    || 65,  unit: 'g', color: 'bg-tertiary-dim' },
+          { label: 'Carbs', value: dailyGoal.carbs, target: targets.carbs_target || 200, unit: 'g', color: 'bg-secondary' },
+          { label: 'Fats', value: dailyGoal.fats, target: targets.fats_target || 65, unit: 'g', color: 'bg-tertiary-dim' },
         ].map(m => {
-          const pct     = Math.min(Math.round(((m.value || 0) / m.target) * 100), 100);
-          const isOver  = (m.value || 0) > m.target;
+          const pct = Math.min(Math.round(((m.value || 0) / m.target) * 100), 100);
+          const isOver = (m.value || 0) > m.target;
           return (
             <div key={m.label} className={`rounded-2xl p-4 space-y-2 ${isOver ? 'bg-error/5 outline outline-1 outline-error/20' : 'bg-surface-container-lowest'}`}>
               <p className="text-[9px] font-bold uppercase tracking-widest text-on-surface-variant">{m.label}</p>
@@ -318,10 +284,7 @@ export default function ProgressPage() {
                 {Math.round(m.value || 0)}<span className="text-sm font-medium opacity-60">{m.unit}</span>
               </p>
               <div className="h-1.5 bg-surface-container rounded-full overflow-hidden">
-                <div
-                  className={`h-full rounded-full transition-all duration-700 ${isOver ? 'bg-error' : m.color}`}
-                  style={{ width: `${pct}%` }}
-                />
+                <div className={`h-full rounded-full transition-all duration-700 ${isOver ? 'bg-error' : m.color}`} style={{ width: `${pct}%` }} />
               </div>
               <p className={`text-[9px] ${isOver ? 'text-error font-semibold' : 'text-on-surface-variant'}`}>
                 {isOver ? `+${Math.round((m.value || 0) - m.target)}${m.unit} over` : `${pct}% of ${m.target}${m.unit}`}
@@ -341,35 +304,29 @@ export default function ProgressPage() {
             </p>
           </div>
           <div className="text-right">
-            <span className={`text-3xl font-headline font-bold ${streak > 0 ? 'text-primary' : 'text-on-surface-variant'}`}>
-              {streak}
-            </span>
+            <span className={`text-3xl font-headline font-bold ${streak > 0 ? 'text-primary' : 'text-on-surface-variant'}`}>{streak}</span>
             <span className="text-xs font-bold text-on-surface-variant uppercase block">Days</span>
           </div>
         </div>
         <div className="flex justify-between items-center">
           {weekly.map((day, i) => {
-            const isToday   = i === todayIdx;
-            const isPast    = i < todayIdx;
-            const isFuture  = i > todayIdx;
+            const isToday = i === todayIdx;
+            const isPast = i < todayIdx;
+            const isFuture = i > todayIdx;
             const isGoalMet = day.goal_met;
-
             return (
               <div key={day.day} className={`flex flex-col items-center gap-2 ${isFuture ? 'opacity-30' : ''}`}>
                 <span className="text-[10px] font-bold text-on-surface-variant">{day.day}</span>
-                <div className={`w-10 h-10 rounded-2xl flex items-center justify-center transition-all duration-300 ${
-                  isGoalMet && (isPast || isToday)
+                <div className={`w-10 h-10 rounded-2xl flex items-center justify-center transition-all duration-300 ${isGoalMet && (isPast || isToday)
                     ? 'bg-primary text-white shadow-lg shadow-primary/20'
                     : isToday
-                    ? 'bg-primary-fixed text-primary outline outline-2 outline-primary/30'
-                    : isPast && day.calories > 0
-                    ? 'bg-surface-container-high text-on-surface-variant'
-                    : 'bg-surface-container-high opacity-50'
-                }`}>
+                      ? 'bg-primary-fixed text-primary outline outline-2 outline-primary/30'
+                      : isPast && day.calories > 0
+                        ? 'bg-surface-container-high text-on-surface-variant'
+                        : 'bg-surface-container-high opacity-50'
+                  }`}>
                   {isGoalMet && (isPast || isToday) && (
-                    <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>
-                      check_circle
-                    </span>
+                    <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
                   )}
                   {isToday && !isGoalMet && (
                     <span className="material-symbols-outlined text-sm">bolt</span>
@@ -401,46 +358,38 @@ export default function ProgressPage() {
             )}
           </div>
           <div className="relative h-48 flex items-end justify-between gap-2 px-2 pt-4">
-            {/* Grid lines */}
             <div className="absolute inset-x-0 bottom-0 top-4 flex flex-col justify-between pointer-events-none opacity-5">
               {[...Array(5)].map((_, i) => <div key={i} className="border-t border-on-surface w-full" />)}
             </div>
-
-            {/* Target line */}
             <div
               className="absolute left-2 right-2 h-[2px] bg-primary/30 z-10"
               style={{ bottom: `${Math.min((dailyGoal.target / maxCalories) * 100, 95)}%` }}
             />
-
-            {/* Bars */}
             {weekly.map((day, i) => {
-              const height    = maxCalories > 0 ? (day.calories / maxCalories) * 100 : 0;
-              const isToday   = i === todayIdx;
+              const height = maxCalories > 0 ? (day.calories / maxCalories) * 100 : 0;
+              const isToday = i === todayIdx;
               const isGoalMet = day.goal_met;
               const isDayOver = day.calories > dailyGoal.target;
-
               return (
                 <div key={day.day} className="w-full h-full flex flex-col justify-end items-center gap-2 relative z-10">
                   <div
-                    className={`w-full rounded-t-xl transition-all duration-500 relative group ${
-                      isToday && isDayOver
+                    className={`w-full rounded-t-xl transition-all duration-500 relative group ${isToday && isDayOver
                         ? 'bg-error shadow-[0_0_20px_rgba(179,38,30,0.3)]'
                         : isToday
-                        ? 'bg-primary shadow-[0_0_20px_rgba(0,105,75,0.3)]'
-                        : isDayOver
-                        ? 'bg-error/50'
-                        : isGoalMet
-                        ? 'bg-emerald-400/60 hover:bg-emerald-400/80'
-                        : day.calories > 0
-                        ? 'bg-primary-dim/30 hover:bg-primary-dim/50'
-                        : 'bg-surface-container-high'
-                    }`}
+                          ? 'bg-primary shadow-[0_0_20px_rgba(0,105,75,0.3)]'
+                          : isDayOver
+                            ? 'bg-error/50'
+                            : isGoalMet
+                              ? 'bg-emerald-400/60 hover:bg-emerald-400/80'
+                              : day.calories > 0
+                                ? 'bg-primary-dim/30 hover:bg-primary-dim/50'
+                                : 'bg-surface-container-high'
+                      }`}
                     style={{ height: `${Math.max(height, day.calories > 0 ? 4 : 0)}%`, minHeight: day.calories > 0 ? '4px' : '0' }}
                   >
                     {(isToday || day.calories > 0) && (
-                      <span className={`absolute -top-6 left-1/2 -translate-x-1/2 text-[9px] font-bold whitespace-nowrap ${
-                        isDayOver ? 'text-error' : isToday ? 'text-primary' : 'opacity-0 group-hover:opacity-100'
-                      } transition-opacity`}>
+                      <span className={`absolute -top-6 left-1/2 -translate-x-1/2 text-[9px] font-bold whitespace-nowrap ${isDayOver ? 'text-error' : isToday ? 'text-primary' : 'opacity-0 group-hover:opacity-100'
+                        } transition-opacity`}>
                         {day.calories >= 1000 ? `${(day.calories / 1000).toFixed(1)}k` : day.calories}
                         {isDayOver && '⚠'}
                       </span>
@@ -449,17 +398,13 @@ export default function ProgressPage() {
                       <div className={`absolute -top-2 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full animate-pulse ${isDayOver ? 'bg-error' : 'bg-primary'}`} />
                     )}
                   </div>
-                  <span className={`text-[10px] font-bold ${
-                    isDayOver ? 'text-error' : isToday ? 'text-primary' : 'text-on-surface-variant'
-                  }`}>
+                  <span className={`text-[10px] font-bold ${isDayOver ? 'text-error' : isToday ? 'text-primary' : 'text-on-surface-variant'}`}>
                     {day.day}
                   </span>
                 </div>
               );
             })}
           </div>
-
-          {/* Legend */}
           <div className="mt-4 flex gap-4 flex-wrap text-[10px] text-on-surface-variant">
             <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-primary inline-block" /> Today</span>
             <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-emerald-400/60 inline-block" /> Goal met</span>
@@ -478,9 +423,7 @@ export default function ProgressPage() {
             <p className="text-2xl font-headline font-bold text-on-surface">
               {Math.round(dailyGoal.protein)}<span className="text-sm font-medium opacity-60">g</span>
             </p>
-            <p className="text-[10px] text-on-surface-variant mt-1">
-              of {targets.protein_target || 120}g target
-            </p>
+            <p className="text-[10px] text-on-surface-variant mt-1">of {targets.protein_target || 120}g target</p>
           </div>
         </div>
         <div className="bg-surface-container-lowest rounded-3xl p-5 shadow-sm border border-surface-container flex flex-col gap-4">
@@ -505,20 +448,19 @@ export default function ProgressPage() {
         <h4 className="text-primary-fixed font-headline font-bold mb-2">Nova Clinical Advisory</h4>
         <p className="text-on-surface-variant leading-relaxed text-sm">
           {dailyGoal.calories === 0
-            ? "No meals logged today. Start tracking your meals to receive personalised AI insights on your nutritional patterns."
+            ? 'No meals logged today. Start tracking your meals to receive personalised AI insights on your nutritional patterns.'
             : isOverBudget
-            ? `You've exceeded your daily target by ${(dailyGoal.calories - dailyGoal.target).toLocaleString()} kcal (${Math.round((dailyGoal.calories / dailyGoal.target) * 100)}% consumed). Focus on hydration and avoid further calorie intake today.`
-            : dailyGoal.calories < dailyGoal.target * 0.5
-            ? `You've consumed ${dailyGoal.calories.toLocaleString()} kcal — only ${percentage}% of your daily target. Make sure to eat a balanced meal before the day ends.`
-            : `You're on track at ${percentage}% of your daily goal (${dailyGoal.calories.toLocaleString()} kcal). Keep prioritising lean protein and fibre-rich foods for optimal metabolic balance.`
-          }
+              ? `You've exceeded your daily target by ${(dailyGoal.calories - dailyGoal.target).toLocaleString()} kcal (${Math.round((dailyGoal.calories / dailyGoal.target) * 100)}% consumed). Focus on hydration and avoid further calorie intake today.`
+              : dailyGoal.calories < dailyGoal.target * 0.5
+                ? `You've consumed ${dailyGoal.calories.toLocaleString()} kcal — only ${percentage}% of your daily target. Make sure to eat a balanced meal before the day ends.`
+                : `You're on track at ${percentage}% of your daily goal (${dailyGoal.calories.toLocaleString()} kcal). Keep prioritising lean protein and fibre-rich foods for optimal metabolic balance.`}
         </p>
         {streak > 0 && (
           <p className="text-on-surface-variant text-xs mt-3 opacity-70">
             🔥 {streak}-day streak — you're building great habits!
           </p>
         )}
-        <button 
+        <button
           data-html2canvas-ignore
           onClick={handleDownloadPdf}
           disabled={downloadingPdf}

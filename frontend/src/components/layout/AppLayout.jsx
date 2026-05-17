@@ -54,7 +54,7 @@ export default function AppLayout() {
       */}
       <style>{`
         .page-enter {
-          animation: pageEnter 0.18s cubic-bezier(0.22, 1, 0.36, 1) both;
+          animation: pageEnter 0.18s cubic-bezier(0.22, 1, 0.36, 1);
           will-change: opacity, transform;
         }
         @keyframes pageEnter {
@@ -64,7 +64,7 @@ export default function AppLayout() {
           }
           to {
             opacity: 1;
-            transform: translateY(0);
+            transform: none;
           }
         }
       `}</style>

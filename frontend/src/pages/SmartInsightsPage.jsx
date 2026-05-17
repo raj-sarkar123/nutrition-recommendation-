@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import api from '../api/axios';
-import { useAuth } from '../context/AuthContext';
+import { useNutrition } from '../context/NutritionContext';
 
 // ── helpers ──────────────────────────────────────────────────────────────────
 const pct = (val, target) =>
@@ -56,14 +56,14 @@ const generateInsights = (meals, progress, targets) => {
       id: 'cal-over', type: 'warning', icon: 'local_fire_department',
       title: 'Over calorie budget',
       body: `You've exceeded your daily target by ${calOver.toLocaleString()} kcal today. Consider lighter options for your next meal.`,
-      tag: 'Calories', color: 'coral'
+      tag: 'Calories', color: 'coral',
     });
   } else if (goal_met) {
     insights.push({
       id: 'goal-met', type: 'success', icon: 'emoji_events',
       title: 'Goal met today!',
       body: `You stayed within your ${daily_calorie_target.toLocaleString()} kcal target. Great discipline — keep it up!`,
-      tag: 'Calories', color: 'teal'
+      tag: 'Calories', color: 'teal',
     });
   } else {
     const remaining = daily_calorie_target - total_calories;
@@ -71,7 +71,7 @@ const generateInsights = (meals, progress, targets) => {
       id: 'cal-remaining', type: 'info', icon: 'bolt',
       title: `${remaining.toLocaleString()} kcal remaining`,
       body: `You're on track for today. You still have room for a balanced meal or a healthy snack.`,
-      tag: 'Calories', color: 'blue'
+      tag: 'Calories', color: 'blue',
     });
   }
 
@@ -80,14 +80,14 @@ const generateInsights = (meals, progress, targets) => {
       id: 'protein-low', type: 'warning', icon: 'fitness_center',
       title: 'Protein intake is low',
       body: `You're at ${total_protein}g — only ${proteinPct}% of your ${protein_target}g target. Try adding eggs, paneer, chicken, or Greek yogurt.`,
-      tag: 'Protein', color: 'amber'
+      tag: 'Protein', color: 'amber',
     });
   } else if (proteinPct >= 90) {
     insights.push({
       id: 'protein-great', type: 'success', icon: 'fitness_center',
       title: 'Strong protein day',
       body: `${total_protein}g logged — you're at ${proteinPct}% of your target. Excellent for muscle recovery.`,
-      tag: 'Protein', color: 'teal'
+      tag: 'Protein', color: 'teal',
     });
   }
 
@@ -96,7 +96,7 @@ const generateInsights = (meals, progress, targets) => {
       id: 'carbs-over', type: 'warning', icon: 'grain',
       title: 'Carbs over target',
       body: `${total_carbs}g logged vs ${carbs_target}g target. Watch refined carbs in your remaining meals.`,
-      tag: 'Carbs', color: 'amber'
+      tag: 'Carbs', color: 'amber',
     });
   }
 
@@ -105,7 +105,7 @@ const generateInsights = (meals, progress, targets) => {
       id: 'fats-over', type: 'warning', icon: 'water_drop',
       title: 'Fats slightly elevated',
       body: `${total_fats}g consumed vs ${fats_target}g target. Opt for grilled over fried options tonight.`,
-      tag: 'Fats', color: 'coral'
+      tag: 'Fats', color: 'coral',
     });
   }
 
@@ -117,7 +117,7 @@ const generateInsights = (meals, progress, targets) => {
       id: 'top-meal', type: 'info', icon: 'restaurant',
       title: `${label} is your biggest meal`,
       body: `${label} accounts for ${shareOfTotal}% of today's calories (${topCal} kcal). Distributing more evenly can help manage hunger.`,
-      tag: 'Meal Pattern', color: 'purple'
+      tag: 'Meal Pattern', color: 'purple',
     });
   }
 
@@ -127,14 +127,14 @@ const generateInsights = (meals, progress, targets) => {
       id: 'scan-good', type: 'success', icon: 'qr_code_scanner',
       title: 'Great use of scanning',
       body: `${ratio}% of your food items were logged via scan or AI verification — more accurate than manual entry.`,
-      tag: 'Accuracy', color: 'teal'
+      tag: 'Accuracy', color: 'teal',
     });
   } else if (ratio > 0) {
     insights.push({
       id: 'scan-tip', type: 'tip', icon: 'qr_code_scanner',
       title: 'Scan more for accuracy',
       body: `Only ${ratio}% of items were scanned. Using the menu scanner gives more reliable calorie estimates.`,
-      tag: 'Accuracy', color: 'blue'
+      tag: 'Accuracy', color: 'blue',
     });
   }
 
@@ -144,7 +144,7 @@ const generateInsights = (meals, progress, targets) => {
       id: 'high-avg', type: 'tip', icon: 'scale',
       title: 'High-calorie items detected',
       body: `Your average item is ~${avg} kcal. Swapping one high-cal item for a lighter option could save 200–300 kcal daily.`,
-      tag: 'Tip', color: 'amber'
+      tag: 'Tip', color: 'amber',
     });
   }
 
@@ -155,7 +155,7 @@ const generateInsights = (meals, progress, targets) => {
       id: 'dinner-empty', type: 'tip', icon: 'nightlight',
       title: "Don't forget to log dinner",
       body: "Dinner hasn't been logged yet. Tracking your evening meal helps complete your daily nutrition picture.",
-      tag: 'Reminder', color: 'purple'
+      tag: 'Reminder', color: 'purple',
     });
   }
 
@@ -177,7 +177,6 @@ function MacroRing({ label, value, target, color }) {
   const r = 26;
   const circ = 2 * Math.PI * r;
   const off = circ - (p / 100) * circ;
-
   const strokeMap = {
     'text-emerald-500': '#10b981',
     'text-amber-500': '#f59e0b',
@@ -193,8 +192,7 @@ function MacroRing({ label, value, target, color }) {
             stroke="var(--md-sys-color-surface-container, #e8e8e8)" strokeWidth="5" />
           <circle cx="32" cy="32" r={r} fill="transparent"
             stroke={stroke}
-            strokeDasharray={circ}
-            strokeDashoffset={off}
+            strokeDasharray={circ} strokeDashoffset={off}
             strokeWidth="5" strokeLinecap="round"
             className="transition-all duration-700"
           />
@@ -221,19 +219,14 @@ function InsightCard({ insight, index }) {
       style={{ animationDelay: `${index * 60}ms` }}
     >
       <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${c.bg} border ${c.border} group-hover:scale-110 transition-transform duration-300`}>
-        <span
-          className={`material-symbols-outlined text-base ${c.icon}`}
-          style={{ fontVariationSettings: "'FILL' 1" }}
-        >
+        <span className={`material-symbols-outlined text-base ${c.icon}`} style={{ fontVariationSettings: "'FILL' 1" }}>
           {insight.icon}
         </span>
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 mb-1 flex-wrap">
           <p className="font-headline font-bold text-sm text-on-surface">{insight.title}</p>
-          <span className={`text-[9px] font-bold tracking-widest uppercase px-2 py-0.5 rounded-full ${c.tag}`}>
-            {insight.tag}
-          </span>
+          <span className={`text-[9px] font-bold tracking-widest uppercase px-2 py-0.5 rounded-full ${c.tag}`}>{insight.tag}</span>
         </div>
         <p className="text-xs text-on-surface-variant leading-relaxed">{insight.body}</p>
       </div>
@@ -241,7 +234,7 @@ function InsightCard({ insight, index }) {
   );
 }
 
-// ── AIInsightCard — matches the "Quick AI Check" banner in DashboardPage ─────
+// ── AIInsightCard ─────────────────────────────────────────────────────────────
 function AIInsightCard({ meals, progress, targets }) {
   const [insight, setInsight] = useState('');
   const [loading, setLoading] = useState(false);
@@ -265,34 +258,20 @@ function AIInsightCard({ meals, progress, targets }) {
   return (
     <section className="px-2">
       <div className="ai-glow bg-emerald-500/10 border border-emerald-500/20 p-4 rounded-2xl flex flex-col gap-3 transition-transform hover:scale-[1.02]">
-        {/* header — identical to DashboardPage Quick AI Check */}
         <div className="flex items-center gap-4">
           <div className="w-10 h-10 rounded-full bg-emerald-500 flex items-center justify-center text-white shrink-0 shadow-[0_0_15px_rgba(16,185,129,0.4)]">
-            <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>
-              auto_awesome
-            </span>
+            <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>auto_awesome</span>
           </div>
           <div className="flex-1">
-            <h4 className="font-headline font-bold text-emerald-800 text-xs uppercase tracking-wider mb-0.5">
-              AI Nutritionist
-            </h4>
+            <h4 className="font-headline font-bold text-emerald-800 text-xs uppercase tracking-wider mb-0.5">AI Nutritionist</h4>
             {!fetched && !loading && (
-              <p className="text-emerald-900/80 text-xs leading-tight">
-                Tap below to get personalised insights based on today's meals.
-              </p>
+              <p className="text-emerald-900/80 text-xs leading-tight">Tap below to get personalised insights based on today's meals.</p>
             )}
-            {loading && (
-              <p className="text-emerald-900/80 text-xs leading-tight">Analysing your nutrition…</p>
-            )}
-            {fetched && insight && (
-              <p className="text-emerald-900/80 text-xs leading-relaxed">{insight}</p>
-            )}
+            {loading && <p className="text-emerald-900/80 text-xs leading-tight">Analysing your nutrition…</p>}
+            {fetched && insight && <p className="text-emerald-900/80 text-xs leading-relaxed">{insight}</p>}
           </div>
-          <span className="shrink-0 text-[9px] font-bold tracking-widest uppercase px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-700">
-            Beta
-          </span>
+          <span className="shrink-0 text-[9px] font-bold tracking-widest uppercase px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-700">Beta</span>
         </div>
-
         {!fetched && !loading && (
           <button
             onClick={fetchInsight}
@@ -302,7 +281,6 @@ function AIInsightCard({ meals, progress, targets }) {
             Analyse my meals
           </button>
         )}
-
         {loading && (
           <div className="flex items-center justify-center gap-2 py-1">
             <span className="material-symbols-outlined text-emerald-600 animate-spin text-base">progress_activity</span>
@@ -315,30 +293,23 @@ function AIInsightCard({ meals, progress, targets }) {
 
 // ── main page ─────────────────────────────────────────────────────────────────
 export default function SmartInsightsPage() {
-  useAuth();
+  // ✅ Use cached nutrition data — no skeleton flash on tab switch
+  const { progress, targets, initialLoading } = useNutrition();
+
   const [meals, setMeals] = useState(null);
-  const [progress, setProgress] = useState(null);
-  const [targets, setTargets] = useState(null);
-  const [loaded, setLoaded] = useState(false);
+  const [mealsLoaded, setMealsLoaded] = useState(false);
   const [activeFilter, setActiveFilter] = useState('All');
 
-  useEffect(() => { fetchData(); }, []);
+  useEffect(() => { fetchMeals(); }, []);
 
-  const fetchData = async () => {
+  const fetchMeals = async () => {
     try {
-      const [mealsRes, progressRes] = await Promise.allSettled([
-        api.get('/meals'),
-        api.get('/progress/daily'),
-      ]);
-      if (mealsRes.status === 'fulfilled') setMeals(mealsRes.value.data);
-      if (progressRes.status === 'fulfilled') {
-        setProgress(progressRes.value.data?.progress);
-        setTargets(progressRes.value.data?.targets);
-      }
+      const res = await api.get('/meals');
+      setMeals(res.data);
     } catch (err) {
-      console.error('SmartInsights fetch error:', err);
+      console.error('SmartInsights meals fetch error:', err);
     } finally {
-      setLoaded(true);
+      setMealsLoaded(true);
     }
   };
 
@@ -356,12 +327,11 @@ export default function SmartInsightsPage() {
     (s, m) => s + (m?.items?.length || 0), 0
   );
 
-  if (!loaded) {
+  // Only show full skeleton on very first ever load (no cached data)
+  if (initialLoading && !mealsLoaded) {
     return (
       <div className="flex items-center justify-center h-[60vh]">
-        <span className="material-symbols-outlined text-primary text-4xl animate-spin">
-          progress_activity
-        </span>
+        <span className="material-symbols-outlined text-primary text-4xl animate-spin">progress_activity</span>
       </div>
     );
   }
@@ -369,50 +339,33 @@ export default function SmartInsightsPage() {
   return (
     <div className="space-y-8 pb-28">
 
-      {/* ── Header — exact TrackerPage pattern ── */}
+      {/* Header */}
       <header className="space-y-3">
         <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary-container/40 border border-primary-container">
-          <span className="material-symbols-outlined text-primary text-sm" style={{ fontSize: '14px' }}>
-            auto_awesome
-          </span>
-          <span className="text-xs font-semibold text-primary tracking-widest uppercase">
-            Smart Insights
-          </span>
+          <span className="material-symbols-outlined text-primary text-sm" style={{ fontSize: '14px' }}>auto_awesome</span>
+          <span className="text-xs font-semibold text-primary tracking-widest uppercase">Smart Insights</span>
         </div>
-
         <h1 className="text-[3.2rem] leading-[1.05] font-headline font-extrabold tracking-[-0.04em] text-on-surface">
-          Today's<br />
-          <span className="text-primary">Analysis.</span>
+          Today's<br /><span className="text-primary">Analysis.</span>
         </h1>
-
         <p className="text-sm text-on-surface-variant font-medium flex items-center gap-1.5">
-          <span className="material-symbols-outlined text-outline" style={{ fontSize: '16px' }}>
-            calendar_today
-          </span>
+          <span className="material-symbols-outlined text-outline" style={{ fontSize: '16px' }}>calendar_today</span>
           {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
         </p>
       </header>
 
-      {/* ── Macro Progress — glass-panel hero matching DashboardPage hero ── */}
+      {/* Macro Progress */}
       {progress && targets && (
         <section className="relative group">
-          {/* ambient glow — exact DashboardPage hero pattern */}
           <div className="absolute -inset-4 bg-primary-container/20 blur-3xl rounded-full opacity-50 group-hover:opacity-70 transition-opacity" />
           <div className="glass-panel rounded-xl p-6 outline outline-1 outline-white/20 nova-shadow relative overflow-hidden">
             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary to-transparent opacity-30" />
-
-            {/* section label — Nutrient Precision style from DashboardPage */}
-            <h3 className="font-headline text-sm font-bold tracking-widest uppercase text-on-surface-variant mb-5">
-              Nutrient Precision
-            </h3>
-
+            <h3 className="font-headline text-sm font-bold tracking-widest uppercase text-on-surface-variant mb-5">Nutrient Precision</h3>
             <div className="flex justify-around mb-5">
               <MacroRing label="Protein" value={progress.total_protein || 0} target={targets.protein_target || 120} color="text-emerald-500" />
               <MacroRing label="Carbs" value={progress.total_carbs || 0} target={targets.carbs_target || 200} color="text-amber-500" />
               <MacroRing label="Fats" value={progress.total_fats || 0} target={targets.fats_target || 65} color="text-rose-400" />
             </div>
-
-            {/* calorie bar */}
             <div className="pt-4 border-t border-outline-variant/10 space-y-2">
               <div className="flex justify-between items-center">
                 <span className="text-xs font-bold tracking-widest uppercase text-on-surface-variant">Calories</span>
@@ -422,17 +375,11 @@ export default function SmartInsightsPage() {
               </div>
               <div className="w-full h-2 bg-surface-container rounded-full overflow-hidden">
                 <div
-                  className={`h-full rounded-full transition-all duration-700 ${(progress.total_calories || 0) > (targets.daily_calorie_target || 0)
-                    ? 'bg-error'
-                    : 'bg-primary shadow-[0_0_12px_rgba(0,105,75,0.4)]'
-                    }`}
+                  className={`h-full rounded-full transition-all duration-700 ${(progress.total_calories || 0) > (targets.daily_calorie_target || 0) ? 'bg-error' : 'bg-primary shadow-[0_0_12px_rgba(0,105,75,0.4)]'}`}
                   style={{ width: `${pct(progress.total_calories, targets.daily_calorie_target)}%` }}
                 />
               </div>
-              <p className={`text-xs font-medium ${(progress.total_calories || 0) > (targets.daily_calorie_target || 0)
-                ? 'text-error'
-                : 'text-on-surface-variant'
-                }`}>
+              <p className={`text-xs font-medium ${(progress.total_calories || 0) > (targets.daily_calorie_target || 0) ? 'text-error' : 'text-on-surface-variant'}`}>
                 {(progress.total_calories || 0) > (targets.daily_calorie_target || 0)
                   ? `${((progress.total_calories || 0) - (targets.daily_calorie_target || 0)).toLocaleString()} kcal over budget`
                   : `${((targets.daily_calorie_target || 0) - (progress.total_calories || 0)).toLocaleString()} kcal remaining`}
@@ -442,51 +389,35 @@ export default function SmartInsightsPage() {
         </section>
       )}
 
-      {/* ── AI Insight — DashboardPage "Quick AI Check" banner clone ── */}
+      {/* AI Insight */}
       {meals && progress && targets && (
         <AIInsightCard meals={meals} progress={progress} targets={targets} />
       )}
 
-      {/* ── Meal Breakdown — TrackerPage meal-item card pattern ── */}
+      {/* Meal Breakdown */}
       {meals && (
         <section className="space-y-4">
-          <h3 className="font-headline text-sm font-bold tracking-widest uppercase text-on-surface-variant px-2">
-            Meal Breakdown
-          </h3>
+          <h3 className="font-headline text-sm font-bold tracking-widest uppercase text-on-surface-variant px-2">Meal Breakdown</h3>
           <div className="space-y-3">
             {['breakfast', 'lunch', 'dinner', 'snack'].map((type) => {
               const meal = meals[type];
               const cal = (meal?.items || []).reduce((s, i) => s + (parseInt(i.calories) || 0), 0);
-              const share = (progress?.total_calories || 0) > 0
-                ? Math.round((cal / progress.total_calories) * 100) : 0;
+              const share = (progress?.total_calories || 0) > 0 ? Math.round((cal / progress.total_calories) * 100) : 0;
               const icons = { breakfast: 'wb_sunny', lunch: 'light_mode', dinner: 'nightlight', snack: 'cookie' };
               const label = type.charAt(0).toUpperCase() + type.slice(1);
               return (
-                <div
-                  key={type}
-                  className="glass-panel p-4 rounded-2xl outline outline-1 outline-white/20 flex items-center gap-4 shadow-sm"
-                >
+                <div key={type} className="glass-panel p-4 rounded-2xl outline outline-1 outline-white/20 flex items-center gap-4 shadow-sm">
                   <div className="w-12 h-12 rounded-xl bg-secondary-container flex items-center justify-center shrink-0">
-                    <span
-                      className="material-symbols-outlined text-primary"
-                      style={{ fontVariationSettings: "'FILL' 1" }}
-                    >
-                      {icons[type]}
-                    </span>
+                    <span className="material-symbols-outlined text-primary" style={{ fontVariationSettings: "'FILL' 1" }}>{icons[type]}</span>
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="font-headline font-semibold text-sm text-on-surface mb-1.5">{label}</p>
                     <div className="w-full h-1 bg-surface-container rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-primary rounded-full transition-all duration-700"
-                        style={{ width: `${share}%` }}
-                      />
+                      <div className="h-full bg-primary rounded-full transition-all duration-700" style={{ width: `${share}%` }} />
                     </div>
                     <p className="text-[10px] text-on-surface-variant mt-1">{share}% of today's intake</p>
                   </div>
-                  <span className="text-sm font-bold text-on-surface shrink-0">
-                    {cal > 0 ? `${cal} kcal` : '—'}
-                  </span>
+                  <span className="text-sm font-bold text-on-surface shrink-0">{cal > 0 ? `${cal} kcal` : '—'}</span>
                 </div>
               );
             })}
@@ -494,13 +425,11 @@ export default function SmartInsightsPage() {
         </section>
       )}
 
-      {/* ── Quick Actions — mirrors DashboardPage grid ── */}
+      {/* Quick Stats */}
       <section className="grid grid-cols-2 gap-4">
         <div className="glass-panel p-5 rounded-xl outline outline-1 outline-white/20 shadow-[0px_12px_24px_rgba(0,77,54,0.04)] flex flex-col items-start gap-3">
           <div className="w-11 h-11 rounded-xl bg-secondary-container flex items-center justify-center text-primary">
-            <span className="material-symbols-outlined text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>
-              restaurant
-            </span>
+            <span className="material-symbols-outlined text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>restaurant</span>
           </div>
           <div>
             <span className="font-headline font-bold text-on-surface block text-sm">Items Logged</span>
@@ -509,9 +438,7 @@ export default function SmartInsightsPage() {
         </div>
         <div className="glass-panel p-5 rounded-xl outline outline-1 outline-white/20 shadow-[0px_12px_24px_rgba(0,77,54,0.04)] flex flex-col items-start gap-3">
           <div className="w-11 h-11 rounded-xl bg-secondary-container flex items-center justify-center text-secondary">
-            <span className="material-symbols-outlined text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>
-              lightbulb
-            </span>
+            <span className="material-symbols-outlined text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>lightbulb</span>
           </div>
           <div>
             <span className="font-headline font-bold text-on-surface block text-sm">Insights</span>
@@ -520,15 +447,13 @@ export default function SmartInsightsPage() {
         </div>
       </section>
 
-      {/* ── Filter chips ── */}
+      {/* Filter chips */}
       <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1 scrollbar-hide">
         {filters.map((f) => (
           <button
             key={f}
             onClick={() => setActiveFilter(f)}
-            className={`shrink-0 px-4 py-1.5 rounded-full text-xs font-bold transition-all duration-200 active:scale-95 ${activeFilter === f
-              ? 'bg-primary text-white'
-              : 'bg-surface-container text-on-surface-variant hover:bg-surface-container-high'
+            className={`shrink-0 px-4 py-1.5 rounded-full text-xs font-bold transition-all duration-200 active:scale-95 ${activeFilter === f ? 'bg-primary text-white' : 'bg-surface-container text-on-surface-variant hover:bg-surface-container-high'
               }`}
           >
             {f}
@@ -536,30 +461,22 @@ export default function SmartInsightsPage() {
         ))}
       </div>
 
-      {/* ── Insight Cards ── */}
+      {/* Insight Cards */}
       <section className="space-y-3">
         {filtered.length === 0 ? (
           <div className="glass-panel rounded-2xl p-10 outline outline-1 outline-white/20 text-center">
-            <span className="material-symbols-outlined text-4xl mb-3 block opacity-30 text-on-surface-variant">
-              sentiment_satisfied
-            </span>
-            <p className="text-sm font-medium text-on-surface-variant">
-              No insights for this category today.
-            </p>
+            <span className="material-symbols-outlined text-4xl mb-3 block opacity-30 text-on-surface-variant">sentiment_satisfied</span>
+            <p className="text-sm font-medium text-on-surface-variant">No insights for this category today.</p>
           </div>
         ) : (
-          filtered.map((insight, i) => (
-            <InsightCard key={insight.id} insight={insight} index={i} />
-          ))
+          filtered.map((insight, i) => <InsightCard key={insight.id} insight={insight} index={i} />)
         )}
       </section>
 
-      {/* ── Macro summary footer — TrackerPage "Today's Macros" footer ── */}
+      {/* Macro footer */}
       {progress && targets && (
         <footer className="glass-panel rounded-3xl p-6 outline outline-1 outline-white/20 shadow-lg">
-          <h3 className="text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-4">
-            Today's Macros
-          </h3>
+          <h3 className="text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-4">Today's Macros</h3>
           <div className="grid grid-cols-3 gap-4">
             {[
               { label: 'Protein', value: Math.round(progress.total_protein || 0), target: targets.protein_target || 120, color: 'bg-emerald-500' },
@@ -570,47 +487,38 @@ export default function SmartInsightsPage() {
                 <span className="text-[10px] font-bold tracking-widest uppercase text-on-surface-variant">{m.label}</span>
                 <p className="text-lg font-bold text-on-surface">{m.value}g</p>
                 <div className="w-full h-1 bg-surface-container rounded-full">
-                  <div
-                    className={`h-full ${m.color} rounded-full transition-all duration-700`}
-                    style={{ width: `${Math.min(Math.round((m.value / m.target) * 100), 100)}%` }}
-                  />
+                  <div className={`h-full ${m.color} rounded-full transition-all duration-700`} style={{ width: `${Math.min(Math.round((m.value / m.target) * 100), 100)}%` }} />
                 </div>
-                <p className="text-[9px] text-on-surface-variant">
-                  {Math.min(Math.round((m.value / m.target) * 100), 100)}% of {m.target}g
-                </p>
+                <p className="text-[9px] text-on-surface-variant">{Math.min(Math.round((m.value / m.target) * 100), 100)}% of {m.target}g</p>
               </div>
             ))}
           </div>
         </footer>
       )}
 
-      {/* ── Bottom AI insight banner — exact DashboardPage "AI Insight" clone ── */}
+      {/* Bottom AI banner */}
       <section className="pb-10">
         <div className="bg-primary-container/30 backdrop-blur-md border border-primary-container p-5 rounded-xl flex gap-4 items-start shadow-[0_0_15px_rgba(140,254,206,0.3)]">
           <div className="text-primary mt-1">
-            <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>
-              auto_awesome
-            </span>
+            <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>auto_awesome</span>
           </div>
           <div>
             <h4 className="font-headline font-bold text-on-primary-container text-sm">AI Insight</h4>
             <p className="text-on-primary-container/80 text-xs mt-1 leading-relaxed">
-              {insights.find(i => i.type === 'warning')?.body
-                || 'Log all meals consistently to unlock smarter, more personalised daily insights.'}
+              {insights.find(i => i.type === 'warning')?.body || 'Log all meals consistently to unlock smarter, more personalised daily insights.'}
             </p>
           </div>
         </div>
       </section>
 
-      {/* ── Refresh ── */}
+      {/* Refresh */}
       <button
-        onClick={fetchData}
+        onClick={fetchMeals}
         className="w-full py-3.5 rounded-2xl bg-surface-container text-on-surface-variant text-sm font-semibold flex items-center justify-center gap-2 hover:bg-surface-container-high active:scale-[0.98] transition-all duration-200"
       >
         <span className="material-symbols-outlined text-base">refresh</span>
         Refresh insights
       </button>
-
     </div>
   );
 }

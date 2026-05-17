@@ -1,42 +1,19 @@
-import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api from '../api/axios';
 import ProgressRing from '../components/ui/ProgressRing';
 import MacroBar from '../components/ui/MacroBar';
+import { useNutrition } from '../context/NutritionContext';
 
 export default function DashboardPage() {
-  const [progress, setProgress] = useState({ total_calories: 0, total_protein: 0, total_carbs: 0, total_fats: 0 });
-  const [targets, setTargets] = useState({ daily_calorie_target: 2200, protein_target: 120, carbs_target: 200, fats_target: 65 });
-  const [loaded, setLoaded] = useState(false);
+  const { progress, targets, initialLoading, refreshing } = useNutrition();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    fetchDailyProgress();
-  }, []);
-
-  const fetchDailyProgress = async () => {
-    try {
-      const { data } = await api.get('/progress/daily');
-      setProgress(data.progress || { total_calories: 0, total_protein: 0, total_carbs: 0, total_fats: 0 });
-      setTargets(data.targets || { daily_calorie_target: 2200, protein_target: 120, carbs_target: 200, fats_target: 65 });
-    } catch {
-      // keep defaults
-    } finally {
-      setLoaded(true);
-    }
-  };
-
-  // const rawRemaining = (targets?.daily_calorie_target || 2200) - (progress?.total_calories || 0);
-  // const remaining = Math.max(rawRemaining, 0);
-const totalCals = progress?.total_calories || 0;
+  const totalCals = progress?.total_calories || 0;
   const targetCals = targets?.daily_calorie_target || 2200;
-  
   const rawRemaining = targetCals - totalCals;
   const isOverBudget = rawRemaining < 0;
   const displayAmount = Math.abs(rawRemaining);
-  
-  // Cap the value at the max target so the ProgressRing doesn't break visually
   const cappedValue = Math.min(totalCals, targetCals);
+
   return (
     <div className="space-y-8">
       {/* Hero: Calorie Ring */}
@@ -44,8 +21,8 @@ const totalCals = progress?.total_calories || 0;
         <div className="absolute -inset-4 bg-primary-container/20 blur-3xl rounded-full opacity-50 group-hover:opacity-70 transition-opacity" />
         <div className="glass-panel rounded-xl p-8 outline outline-1 outline-white/20 nova-shadow flex flex-col items-center relative overflow-hidden">
           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary to-transparent opacity-30" />
-          {!loaded ? (
-            /* Skeleton placeholder while data loads */
+
+          {initialLoading ? (
             <div className="flex flex-col items-center gap-4 animate-pulse">
               <div className="w-48 h-48 rounded-full bg-surface-container" />
               <div className="h-5 w-32 bg-surface-container rounded-lg" />
@@ -53,18 +30,21 @@ const totalCals = progress?.total_calories || 0;
             </div>
           ) : (
             <>
-              {/* If your ProgressRing component supports a color prop, you can pass it here. 
-                  Otherwise, we pass the capped value so the ring stays at 100% full visually. */}
+              {/* Subtle dot shown only during silent background refresh */}
+              {refreshing && (
+                <div className="absolute top-3 right-3 w-2 h-2 rounded-full bg-primary animate-pulse" />
+              )}
+
               <ProgressRing
                 value={cappedValue}
                 max={targetCals}
                 label={displayAmount.toLocaleString()}
-                sublabel={isOverBudget ? "KCAL OVER" : "kcal left"}
+                sublabel={isOverBudget ? 'KCAL OVER' : 'kcal left'}
               />
-              
+
               <div className="mt-6 text-center">
                 <h2 className={`font-headline text-xl font-bold tracking-tight ${isOverBudget ? 'text-red-500' : 'text-on-surface'}`}>
-                  {isOverBudget 
+                  {isOverBudget
                     ? 'Over Budget'
                     : rawRemaining > targetCals * 0.7
                       ? 'Ready to Fuel Up'
@@ -91,7 +71,7 @@ const totalCals = progress?.total_calories || 0;
         </div>
       </section>
 
-      {/* AI Insight */}
+      {/* AI Quick Check */}
       <section className="px-2">
         <div className="ai-glow bg-emerald-500/10 border border-emerald-500/20 p-4 rounded-2xl flex items-center gap-4 transition-transform hover:scale-[1.02]">
           <div className="w-10 h-10 rounded-full bg-emerald-500 flex items-center justify-center text-white shrink-0 shadow-[0_0_15px_rgba(16,185,129,0.4)]">
@@ -100,14 +80,13 @@ const totalCals = progress?.total_calories || 0;
           <div>
             <h4 className="font-headline font-bold text-emerald-800 text-xs uppercase tracking-wider mb-0.5">Quick AI Check</h4>
             <p className="text-emerald-900/80 text-xs leading-tight">
-              {(progress?.total_calories || 0) === 0
+              {totalCals === 0
                 ? 'No meals logged yet today. Scan a menu or add a meal to get personalised insights.'
                 : (progress?.total_protein || 0) < (targets?.protein_target || 120) * 0.5
                   ? `Protein is at ${Math.round(progress?.total_protein || 0)}g — well below your ${targets?.protein_target || 120}g target. Prioritise lean protein in your next meal.`
-                  // AFTER (fixed — use rawRemaining / displayAmount)
-: rawRemaining > 0 && rawRemaining < (targets?.daily_calorie_target || 2200) * 0.3
-  ? `${displayAmount.toLocaleString()} kcal remaining. Opt for fibre-rich, low-calorie options to finish strong.`
-  : `You've consumed ${Math.round(((progress?.total_calories || 0) / (targets?.daily_calorie_target || 2200)) * 100)}% of your daily calories with ${Math.round(progress?.total_protein || 0)}g protein. ${rawRemaining > 0 ? 'Keep it balanced.' : 'Consider stopping for today.'}`}
+                  : rawRemaining > 0 && rawRemaining < targetCals * 0.3
+                    ? `${displayAmount.toLocaleString()} kcal remaining. Opt for fibre-rich, low-calorie options to finish strong.`
+                    : `You've consumed ${Math.round((totalCals / targetCals) * 100)}% of your daily calories with ${Math.round(progress?.total_protein || 0)}g protein. ${rawRemaining > 0 ? 'Keep it balanced.' : 'Consider stopping for today.'}`}
             </p>
           </div>
         </div>

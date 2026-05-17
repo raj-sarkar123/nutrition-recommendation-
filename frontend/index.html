@@ -56,6 +56,15 @@
     .material-symbols-outlined {
       opacity: 0;
       transition: opacity 0.15s ease;
+      /* Prevent text fallback from blowing out layouts before font loads.
+         Use font-size-based sizing so custom sizes (text-2xl, text-6xl etc) work. */
+      display: inline-block;
+      vertical-align: middle;
+      line-height: 1;
+      font-size: 24px;
+      width: 1em;
+      height: 1em;
+      overflow: hidden;
     }
   </style>
 </head>

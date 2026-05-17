@@ -19,9 +19,25 @@ exports.getDailyProgress = async (req, res) => {
         .eq('user_id', userId)
         .maybeSingle();
 
+      // Supabase returns DECIMAL columns as strings — coerce to numbers
+      const normalizedProgress = progress ? {
+        total_calories: parseInt(progress.total_calories) || 0,
+        total_protein:  parseFloat(progress.total_protein) || 0,
+        total_carbs:    parseFloat(progress.total_carbs) || 0,
+        total_fats:     parseFloat(progress.total_fats) || 0,
+        goal_met:       progress.goal_met || false,
+      } : { total_calories: 0, total_protein: 0, total_carbs: 0, total_fats: 0, goal_met: false };
+
+      const normalizedTargets = profile ? {
+        daily_calorie_target: parseInt(profile.daily_calorie_target) || 2200,
+        protein_target:       parseInt(profile.protein_target) || 120,
+        carbs_target:         parseInt(profile.carbs_target) || 200,
+        fats_target:          parseInt(profile.fats_target) || 65,
+      } : { daily_calorie_target: 2200, protein_target: 120, carbs_target: 200, fats_target: 65 };
+
       return res.json({
-        progress: progress || { total_calories: 0, total_protein: 0, total_carbs: 0, total_fats: 0 },
-        targets: profile || { daily_calorie_target: 2200, protein_target: 120, carbs_target: 200, fats_target: 65 }
+        progress: normalizedProgress,
+        targets: normalizedTargets
       });
     } else {
       // Demo data matching home_nova_refined screen
@@ -78,7 +94,7 @@ exports.getWeeklyProgress = async (req, res) => {
         return {
           day: day.day,
           date: day.date,
-          calories: p?.total_calories || 0,
+          calories: parseInt(p?.total_calories) || 0,
           goal_met: p?.goal_met || false
         };
       });

@@ -72,12 +72,20 @@ async function syncDailyProgress(userId, date) {
         .select('calories, protein, carbs, fats')
         .in('meal_id', meals.map(m => m.id));
 
-      totals = (items || []).reduce((acc, item) => ({
+      const raw = (items || []).reduce((acc, item) => ({
         total_calories: acc.total_calories + (parseInt(item.calories) || 0),
         total_protein:  acc.total_protein  + (parseFloat(item.protein) || 0),
         total_carbs:    acc.total_carbs    + (parseFloat(item.carbs)   || 0),
         total_fats:     acc.total_fats     + (parseFloat(item.fats)    || 0),
       }), totals);
+
+      // Round macros to 1dp to match DECIMAL(5,1) column precision
+      totals = {
+        total_calories: raw.total_calories,
+        total_protein:  Math.round(raw.total_protein * 10) / 10,
+        total_carbs:    Math.round(raw.total_carbs * 10) / 10,
+        total_fats:     Math.round(raw.total_fats * 10) / 10,
+      };
     }
 
     const { data: profile } = await db
@@ -155,9 +163,16 @@ exports.getMealsByDate = async (req, res) => {
     for (const meal of meals || []) {
       grouped[meal.meal_type] = {
         ...meal,
-        items: (meal.meal_items || []).sort(
-          (a, b) => new Date(a.created_at) - new Date(b.created_at)
-        ),
+        items: (meal.meal_items || [])
+          .sort((a, b) => new Date(a.created_at) - new Date(b.created_at))
+          .map(item => ({
+            ...item,
+            // Supabase returns DECIMAL as strings — coerce to numbers
+            calories: parseInt(item.calories) || 0,
+            protein:  parseFloat(item.protein) || 0,
+            carbs:    parseFloat(item.carbs) || 0,
+            fats:     parseFloat(item.fats) || 0,
+          })),
       };
     }
 
@@ -266,10 +281,16 @@ exports.addMealItem = async (req, res) => {
       .single();
 
     if (meal) {
-      syncDailyProgress(meal.user_id, meal.meal_date).catch(() => { });
+      await syncDailyProgress(meal.user_id, meal.meal_date);
     }
 
-    return res.status(201).json(item);
+    return res.status(201).json({
+      ...item,
+      calories: parseInt(item.calories) || 0,
+      protein:  parseFloat(item.protein) || 0,
+      carbs:    parseFloat(item.carbs) || 0,
+      fats:     parseFloat(item.fats) || 0,
+    });
   } catch (error) {
     console.error('addMealItem error:', error);
     return res.status(500).json({ error: 'Failed to add meal item.' });
@@ -326,9 +347,15 @@ exports.quickAddItem = async (req, res) => {
 
     if (itemErr) throw itemErr;
 
-    syncDailyProgress(userId, date).catch(() => { });
+    await syncDailyProgress(userId, date);
 
-    return res.status(201).json(item);
+    return res.status(201).json({
+      ...item,
+      calories: parseInt(item.calories) || 0,
+      protein:  parseFloat(item.protein) || 0,
+      carbs:    parseFloat(item.carbs) || 0,
+      fats:     parseFloat(item.fats) || 0,
+    });
   } catch (error) {
     console.error('quickAddItem error:', error);
     return res.status(500).json({ error: 'Failed to add item.' });
@@ -367,7 +394,7 @@ exports.removeMealItem = async (req, res) => {
         .single();
 
       if (meal) {
-        syncDailyProgress(meal.user_id, meal.meal_date).catch(() => { });
+        await syncDailyProgress(meal.user_id, meal.meal_date);
       }
     }
 

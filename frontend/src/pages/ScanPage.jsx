@@ -5,7 +5,7 @@ import { useScan } from '../context/ScanContext';
 
 // Stage labels shown in sequence during a real scan
 const STAGES = [
-  { pct: 5,  label: 'Uploading image…' },
+  { pct: 5, label: 'Uploading image…' },
   { pct: 20, label: 'Pre-processing image…' },
   { pct: 35, label: 'Running OCR…' },
   { pct: 55, label: 'Identifying menu items…' },
@@ -31,15 +31,15 @@ export default function ScanPage() {
     setCurrentScan,
   } = useScan();
 
-  const [file, setFile]       = useState(null);
+  const [file, setFile] = useState(null);
   const [preview, setPreview] = useState(null);
 
   // Two separate inputs:
   //   cameraInputRef  — has capture="environment", opens rear camera on mobile
   //   fileInputRef    — normal file picker (gallery / desktop)
   const cameraInputRef = useRef(null);
-  const fileInputRef   = useRef(null);
-  const navigate       = useNavigate();
+  const fileInputRef = useRef(null);
+  const navigate = useNavigate();
 
   const applyFile = (selected) => {
     if (!selected) return;
@@ -48,7 +48,7 @@ export default function ScanPage() {
   };
 
   const handleCameraCapture = (e) => applyFile(e.target.files?.[0]);
-  const handleFileSelect    = (e) => applyFile(e.target.files?.[0]);
+  const handleFileSelect = (e) => applyFile(e.target.files?.[0]);
 
   const handleScan = async () => {
     if (!file) return;
@@ -351,8 +351,8 @@ export default function ScanPage() {
               const items = entry.extracted_items || entry.results || [];
               const time = entry.savedAt
                 ? new Date(entry.savedAt).toLocaleString('en-US', {
-                    month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit',
-                  })
+                  month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit',
+                })
                 : 'Unknown';
               return (
                 <div
@@ -387,10 +387,12 @@ export default function ScanPage() {
                       e.stopPropagation();
                       deleteHistoryEntry(entry.id);
                     }}
-                    className="p-1.5 rounded-lg text-on-surface-variant/50 hover:text-red-500 hover:bg-red-500/10 transition-all opacity-0 group-hover:opacity-100"
+                    className="text-red-500"
                     title="Delete"
                   >
-                    <span className="material-symbols-outlined text-base">delete</span>
+                    <span className="material-symbols-outlined text-base">
+                      delete
+                    </span>
                   </button>
                 </div>
               );

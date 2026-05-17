@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ScanProvider } from './context/ScanContext';
 import AppLayout from './components/layout/AppLayout';
+import { NutritionProvider } from './context/NutritionContext';
 
 /*
   FIX: Context ordering.
@@ -87,31 +88,33 @@ function App() {
     */
     <BrowserRouter>
       <AuthProvider>
-        <ScanProvider>
-          <Suspense fallback={<PageLoader />}>
-            <Routes>
-              {/* Public */}
-              <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
-              <Route path="/signup" element={<PublicRoute><SignupPage /></PublicRoute>} />
+        <NutritionProvider>  {/* ← Here */}
+          <ScanProvider>
+            <Suspense fallback={<PageLoader />}>
+              <Routes>
+                {/* Public */}
+                <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
+                <Route path="/signup" element={<PublicRoute><SignupPage /></PublicRoute>} />
 
-              {/* Onboarding */}
-              <Route path="/onboarding" element={<ProtectedRoute><OnboardingPage /></ProtectedRoute>} />
+                {/* Onboarding */}
+                <Route path="/onboarding" element={<ProtectedRoute><OnboardingPage /></ProtectedRoute>} />
 
-              {/* Protected + Layout */}
-              <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
-                <Route path="/dashboard" element={<DashboardPage />} />
-                <Route path="/scan" element={<ScanPage />} />
-                <Route path="/analysis" element={<AnalysisPage />} />
-                <Route path="/tracker" element={<TrackerPage />} />
-                <Route path="/progress" element={<ProgressPage />} />
-                <Route path="/profile" element={<ProfilePage />} />
-                <Route path="/insights" element={<SmartInsightsPage />} />
-              </Route>
+                {/* Protected + Layout */}
+                <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
+                  <Route path="/dashboard" element={<DashboardPage />} />
+                  <Route path="/scan" element={<ScanPage />} />
+                  <Route path="/analysis" element={<AnalysisPage />} />
+                  <Route path="/tracker" element={<TrackerPage />} />
+                  <Route path="/progress" element={<ProgressPage />} />
+                  <Route path="/profile" element={<ProfilePage />} />
+                  <Route path="/insights" element={<SmartInsightsPage />} />
+                </Route>
 
-              <Route path="*" element={<Navigate to="/login" replace />} />
-            </Routes>
-          </Suspense>
-        </ScanProvider>
+                <Route path="*" element={<Navigate to="/login" replace />} />
+              </Routes>
+            </Suspense>
+          </ScanProvider>
+        </NutritionProvider>  {/* ← Here */}
       </AuthProvider>
     </BrowserRouter>
   );
